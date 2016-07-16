@@ -16,6 +16,7 @@ logger(app);
 ```
 
 ### Sample Request+Body+Response Logging
+*Note: Actual console output is nicely colorized for iTerm2 :)*
 ```
   Request: POST /login/ at Fri, 15 Jul 2016 03:13:48 GMT, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36
   Body:
@@ -23,6 +24,5 @@ logger(app);
   	"email": "rwcbeaman@gmail.com",
   	"password": "blahB3"
   }
-  (node:26659) Warning: a promise was created in a handler but was not returned from it
   Response: 200 136.940 ms - -
 ```
