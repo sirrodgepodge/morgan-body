@@ -74,13 +74,6 @@ function morgan(format, options) {
   if (format && typeof format === 'object') {
     opts = format;
     fmt = opts.format || 'default';
-
-    // smart deprecation message
-    deprecate('morgan(options): use morgan(' + (typeof fmt === 'string' ? JSON.stringify(fmt) : 'format') + ', options) instead');
-  }
-
-  if (fmt === undefined) {
-    deprecate('undefined format: specify a format');
   }
 
   // output on request instead of response
@@ -100,7 +93,6 @@ function morgan(format, options) {
 
   // buffering support
   if (buffer) {
-    deprecate('buffer option');
 
     // flush interval
     var interval = typeof buffer !== 'number'
@@ -126,18 +118,15 @@ function morgan(format, options) {
 
     function logRequest() {
       if (skip !== false && skip(req, res)) {
-        debug('skip request');
         return;
       }
 
       var line = formatLine(morgan, req, res);
 
       if (null == line) {
-        debug('skip line');
         return;
       }
 
-      debug('log request');
       stream.write(line + '\n');
     }
 
@@ -155,37 +144,6 @@ function morgan(format, options) {
     next();
   };
 }
-
-/**
- * Apache combined log format.
- */
-
-// morgan.format('combined', ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')
-
-/**
- * Apache common log format.
- */
-
-// morgan.format('common', ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]')
-
-/**
- * Default format.
- */
-
-// morgan.format('default', ':remote-addr - :remote-user [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')
-// deprecate.property(morgan, 'default', 'default format: use combined format')
-
-/**
- * Short format.
- */
-
-// morgan.format('short', ':remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms')
-
-/**
- * Tiny format.
- */
-
-// morgan.format('tiny', ':method :url :status :res[content-length] - :response-time ms')
 
 /**
  * dev (colored)
