@@ -20,7 +20,7 @@ morgan.token = token;
 module.exports = function(app) {
   app.use(morgan('dev-req', {immediate: true})); // log upon request
   app.use((req, res, next) => { // log body if sent
-    if(Object.keys(req.body).length) {
+    if(Object.keys(req.body || {}).length) {
       console.log('\x1b[95mBody:\x1b[0m');
       JSON.stringify(req.body, null, '\t').split('\n').forEach(line => console.log('\x1b[97m' + line + '\x1b[0m')); // needed for multi-line coloring
     }
