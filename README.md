@@ -1,6 +1,7 @@
 # morgan-body
 
 ## Example Use
+*Note: unlike typical express middleware you must pass the actual app into the function*
 ```js
 import logger from 'morgan-body';
 import express from 'express';

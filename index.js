@@ -38,8 +38,6 @@ module.exports = function(app) {
  * @private
  */
 
-var debug = require('debug')('morgan');
-var deprecate = require('depd')('morgan');
 var onFinished = require('on-finished');
 var onHeaders = require('on-headers');
 
