@@ -1,5 +1,7 @@
 # morgan-body
 
+[![NPM][nodei-image]][nodei-url]
+
 ## Example Use
 *Note: unlike typical express middleware you must pass the actual app into the function*
 ```js
@@ -27,3 +29,6 @@ logger(app);
   }
   Response: 200 136.940 ms - -
 ```
+
+[nodei-image]: https://nodei.co/npm/morgan-body.png?downloads=true&downloadRank=true&stars=true
+[nodei-url]: https://www.npmjs.com/package/morgan-body
