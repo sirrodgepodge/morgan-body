@@ -54,7 +54,6 @@ module.exports = function(app, options) {
       }
 
       if(isObj && Object.keys(body).length) {
-        console.log('');
         console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
 
         var stringifiedObj = JSON.stringify(body, null, '\t');
@@ -62,14 +61,12 @@ module.exports = function(app, options) {
         stringifiedObj
           .split('\n') // split + loop needed for multi-line coloring
           .forEach(line => console.log('\x1b[97m' + line + '\x1b[0m'));
-        console.log('');
       } else if (isString && body.length) {
         console.log('');
         console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
 
         if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
         console.log('\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m');
-        console.log('');
       }
     }
 
