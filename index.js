@@ -62,7 +62,6 @@ module.exports = function(app, options) {
           .split('\n') // split + loop needed for multi-line coloring
           .forEach(line => console.log('\x1b[97m' + line + '\x1b[0m'));
       } else if (isString && body.length) {
-        console.log('');
         console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
 
         if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
