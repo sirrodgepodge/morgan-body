@@ -2,7 +2,8 @@
 
 [![NPM][nodei-image]][nodei-url]
 
-#### Logging the way you always wanted it to be!
+
+Logging the way you always wanted it to be!
 
 <img width="657" alt="screen shot 2017-07-07 at 2 02 55 am" src="https://user-images.githubusercontent.com/7177292/27944997-74491fa6-62b8-11e7-96c8-82dbf2e6b50c.png">
 *\*Note: console output is colorized for iTerm2, might look odd on terminals with other background colors*
