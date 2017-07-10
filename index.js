@@ -30,15 +30,16 @@ module.exports = function(app, options) {
   if (logRequestBody || logResponseBody) {
     function logBody(prependStr, body) {
       var bodyType = typeof body;
-      var isObj = bodyType === 'object';
+      var isObj = body !== null && bodyType === 'object';
       var isString = bodyType === 'string';
       var parseFailed = false;
 
       if (isString) {
         try {
           body = JSON.parse(body);
-          isObj = true;
-          isString = false;
+          bodyType = typeof body;
+          isObj = body !== null && bodyType === 'object';
+          isString = bodyType === 'string';
         } catch(e) { }
       }
 
@@ -51,9 +52,15 @@ module.exports = function(app, options) {
 
       if (!isObj && !isString) {
         body = ""+body; // coerce to string if primitive
+        isString = true;
       }
 
-      if(isObj && Object.keys(body).length) {
+      if (isString && body.length) {
+        console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
+
+        if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
+        console.log('\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m');
+      } else if(isObj && Object.keys(body).length) {
         console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
 
         var stringifiedObj = JSON.stringify(body, null, '\t');
@@ -61,11 +68,6 @@ module.exports = function(app, options) {
         stringifiedObj
           .split('\n') // split + loop needed for multi-line coloring
           .forEach(line => console.log('\x1b[97m' + line + '\x1b[0m'));
-      } else if (isString && body.length) {
-        console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
-
-        if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
-        console.log('\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m');
       }
     }
 
@@ -96,7 +98,6 @@ module.exports = function(app, options) {
         }
       }
     }
-
   }
 
   // log response metadata (modified source to remove method and url)
