@@ -48,7 +48,7 @@ morganBody(app);
   Response: 200 136.940 ms - -
 ```
 ## API
-### morganBody(<express instance>, <options object>)
+### morganBody(\<express instance>, \<options object>)
   Options are:
   ```
   {
