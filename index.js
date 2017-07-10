@@ -50,7 +50,7 @@ module.exports = function(app, options) {
         isString = true;
       }
 
-      if (!isObj && !isString) {
+      if (!isObj && !isString && body !== undefined) {
         body = ""+body; // coerce to string if primitive
         isString = true;
       }
