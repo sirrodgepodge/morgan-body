@@ -2,6 +2,9 @@
 
 [![NPM][nodei-image]][nodei-url]
 
+*Note: console output is colorized for iTerm2, might look odd on terminals with other background colors*
+<img width="657" alt="screen shot 2017-07-07 at 2 02 55 am" src="https://user-images.githubusercontent.com/7177292/27944997-74491fa6-62b8-11e7-96c8-82dbf2e6b50c.png">
+
 ## Example Use
 *Note: unlike typical express middleware you must pass the actual app into the function*
 ```js
@@ -18,34 +21,6 @@ app.use(bodyParser.json());
 
 // hook morganBody to express app
 morganBody(app);
-```
-
-### Sample Request+Body+Response Logging
-*Note: Actual console output is nicely colorized for iTerm2 :)*
-```
-  Request: POST /login/ at Fri, 15 Jul 2016 03:13:48 GMT, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36
-  Request Body:
-  {
-  	"email": "rwcbeaman@gmail.com",
-  	"password": "blahB3"
-  }
-  Response Body:
-  {
-  	"user": {
-      "email": "rwcbeaman@gmail.com",
-    	"blogPosts": [
-        "0": {
-          heading: "title",
-          content: "body"
-        },
-        "1": {
-          heading: "title2",
-          content: "body2"
-        },
-      ]
-    }
-  }
-  Response: 200 136.940 ms - -
 ```
 ## API
 ### morganBody(\<express instance>, \<options object>)
