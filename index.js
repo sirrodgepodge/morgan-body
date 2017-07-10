@@ -17,16 +17,90 @@
 morgan.format = format;
 morgan.token = token;
 
-module.exports = function(app) {
-  app.use(morgan('dev-req', {immediate: true})); // log upon request
-  app.use((req, res, next) => { // log body if sent
-    if(Object.keys(req.body || {}).length) {
-      console.log('\x1b[95mBody:\x1b[0m');
-      JSON.stringify(req.body, null, '\t').split('\n').forEach(line => console.log('\x1b[97m' + line + '\x1b[0m')); // needed for multi-line coloring
+module.exports = function(app, options) {
+  // default options
+  options = options || {};
+  var maxBodyLength = options.hasOwnProperty('maxBodyLength') ? options.maxBodyLength : 1000;
+  var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
+  var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
+
+  // log when request comes in
+  app.use(morgan('dev-req', {immediate: true}));
+
+  if (logRequestBody || logResponseBody) {
+    function logBody(prependStr, body) {
+      var bodyType = typeof body;
+      var isObj = bodyType === 'object';
+      var isString = bodyType === 'string';
+      var parseFailed = false;
+
+      if (isString) {
+        try {
+          body = JSON.parse(body);
+          isObj = true;
+          isString = false;
+        } catch(e) { }
+      }
+
+      if (body instanceof Buffer) {
+        body = '<Buffer>';
+        bodyType = 'string';
+        isObj = false;
+        isString = true;
+      }
+
+      if (!isObj && !isString) {
+        body = ""+body; // coerce to string if primitive
+      }
+
+      if(isObj && Object.keys(body).length) {
+        console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
+
+        var stringifiedObj = JSON.stringify(body, null, '\t');
+        if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
+        stringifiedObj
+          .split('\n') // split + loop needed for multi-line coloring
+          .forEach(line => console.log('\x1b[97m' + line + '\x1b[0m'));
+      } else if (isString && body.length) {
+        console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
+
+        if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
+        console.log('\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m');
+      }
     }
-    next();
-  });
-  app.use(morgan('dev-res')); // log upon response (modified source to remove method and url)
+
+    if (logRequestBody) {
+      app.use(function(req, res, next) { // log body if sent
+        if (req.hasOwnProperty('body')) logBody('Request', req.body);
+        next();
+      });
+    }
+
+    if (logResponseBody) {
+      // need to catch setting of response body
+      var originalSend = app.response.send;
+      app.response.send = function sendOverWrite(body) {
+        originalSend.call(this, body);
+        this.__morgan_body_response = body;
+      };
+
+      // allow mimicking node-restify server.on('after', fn) behavior
+      app.use(function (req, res, next) {
+        onFinished(res, logRes);
+        next();
+      });
+
+      function logRes(err, res) {
+        if (!err && res.hasOwnProperty('__morgan_body_response')) {
+          logBody('Response', res.__morgan_body_response);
+        }
+      }
+    }
+
+  }
+
+  // log response metadata (modified source to remove method and url)
+  app.use(morgan('dev-res'));
 };
 
 // module.exports = morgan;
