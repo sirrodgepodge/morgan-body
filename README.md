@@ -16,8 +16,6 @@ const app = express();
 // must parse body before morganBody as body will be logged
 app.use(bodyParser.json());
 
-
-
 // hook morganBody to express app
 morganBody(app);
 ```
