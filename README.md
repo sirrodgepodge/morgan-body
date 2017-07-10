@@ -1,12 +1,8 @@
 # morgan-body
 
-[![NPM][nodei-image]][nodei-url]
-
-
 Logging the way you always wanted it to be!
 
-<img width="657" alt="screen shot 2017-07-07 at 2 02 55 am" src="https://user-images.githubusercontent.com/7177292/27944997-74491fa6-62b8-11e7-96c8-82dbf2e6b50c.png">
-*\*Note: console output is colorized for iTerm2, might look odd on terminals with other background colors*
+[![NPM][nodei-image]][nodei-url]
 
 ## Example Use
 *Note: unlike typical express middleware you must pass the actual app into the function*
@@ -25,6 +21,8 @@ app.use(bodyParser.json());
 // hook morganBody to express app
 morganBody(app);
 ```
+<img width="657" alt="screen shot 2017-07-07 at 2 02 55 am" src="https://user-images.githubusercontent.com/7177292/27944997-74491fa6-62b8-11e7-96c8-82dbf2e6b50c.png">
+*\*Note: console output is colorized for iTerm2, might look odd on terminals with other background colors*
 ## API
 ### morganBody(\<express instance>, \<options object>)
   Options are:
