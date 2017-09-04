@@ -1,6 +1,7 @@
 # morgan-body
 
 Logging the way you always wanted it to be!
+Nicely colorized logging that includes Request and Response bodies.
 
 [![NPM][nodei-image]][nodei-url]
 
@@ -28,6 +29,10 @@ morganBody(app);
   ```
   {
     maxBodyLength: (default: 1000), caps the length of the console output of a single request/response to specified length,
+
+    logDateTime: (default: true), allows disabling of logging request date + time,
+
+    logReqUserAgent: (default: true), allows disabling of logging request user agent,
 
     logRequestBody: (default: true), allows disabling of logging request body,
 

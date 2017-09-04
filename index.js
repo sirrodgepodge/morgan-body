@@ -21,11 +21,15 @@ module.exports = function(app, options) {
   // default options
   options = options || {};
   var maxBodyLength = options.hasOwnProperty('maxBodyLength') ? options.maxBodyLength : 1000;
+  var logReqDateTime = options.hasOwnProperty('logReqDateTime') ? options.logReqDateTime : true;
+  var logReqUserAgent = options.hasOwnProperty('logReqUserAgent') ? options.logReqUserAgent : true;
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
 
+  const reqLogType = `dev-req${!logReqUserAgent ? '-nouseragent' : ''}${!logReqDateTime ? '-nodatetime' : ''}`;
+
   // log when request comes in
-  app.use(morgan('dev-req', {immediate: true}));
+  app.use(morgan(reqLogType, {immediate: true}));
 
   if (logRequestBody || logResponseBody) {
     function logBody(prependStr, body) {
@@ -228,6 +232,30 @@ function morgan(format, options) {
    // compile and memoize
    var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
      '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url \x1b[90mat \x1b[37m:date, \x1b[90mUser Agent: :user-agent\x1b[0m'
+   );
+   return fn(tokens, req, res);
+ });
+
+ morgan.format('dev-req-nouseragent', function developmentFormatLine(tokens, req, res) {
+   // compile and memoize
+   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
+     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url \x1b[90mat \x1b[37m:date'
+   );
+   return fn(tokens, req, res);
+ });
+
+ morgan.format('dev-req-nodatetime', function developmentFormatLine(tokens, req, res) {
+   // compile and memoize
+   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
+     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url \x1b[90mUser Agent: :user-agent\x1b[0m'
+   );
+   return fn(tokens, req, res);
+ });
+
+ morgan.format('dev-req-nouseragent-nodatetime', function developmentFormatLine(tokens, req, res) {
+   // compile and memoize
+   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
+     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url'
    );
    return fn(tokens, req, res);
  });
