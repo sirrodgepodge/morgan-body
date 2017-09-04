@@ -1,7 +1,7 @@
 # morgan-body
 
 Logging the way you always wanted it to be!
-Nicely colorized logging that includes Request and Response bodies.
+*Nicely colorized logging that includes Request and Response bodies.*
 
 [![NPM][nodei-image]][nodei-url]
 
