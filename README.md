@@ -30,13 +30,13 @@ morganBody(app);
   {
     maxBodyLength: (default: 1000), caps the length of the console output of a single request/response to specified length,
 
-    logDateTime: (default: true), can set to false to disable logging request date + time,
+    logDateTime: (default: true), setting to false disables logging request date + time,
 
-    logReqUserAgent: (default: true), can set to false to disable logging request user agent,
+    logReqUserAgent: (default: true), setting to false disables logging request user agent,
 
-    logRequestBody: (default: true), can set to false to disable logging request body,
+    logRequestBody: (default: true), setting to false disables logging request body,
 
-    logResponseBody: (default: true), can set to false to disable logging response body
+    logResponseBody: (default: true), setting to false disables logging response body
   }
   ```
 
