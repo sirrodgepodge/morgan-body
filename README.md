@@ -32,6 +32,8 @@ morganBody(app);
 
     logDateTime: (default: true), setting to false disables logging request date + time,
 
+    dateTimeFormat: (default: 'utc', available: ['clf', 'iso', 'utc']), lets you specify dateTime format logged if "logDateTime" option is true (otherwise dateTime not logged anyways)
+
     logReqUserAgent: (default: true), setting to false disables logging request user agent,
 
     logRequestBody: (default: true), setting to false disables logging request body,
