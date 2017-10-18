@@ -28,6 +28,19 @@ module.exports = function(app, options) {
   var logReqUserAgent = options.hasOwnProperty('logReqUserAgent') ? options.logReqUserAgent : true;
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
+  if (logReqDateTime) {
+    var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
+    if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
+    else {
+      dateTimeFormat = dateTimeFormat.toLowerCase().trim();
+      if (dateTimeFormat === 'gmt' || dateTimeFormat === 'utc') dateTimeFormat = ''; // GMT/UTC is default
+      if (!['iso', 'clf', ''].some(function(value) { value === dateTimeFormat })) { // enum check
+        new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', 'utc' or 'gmt' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
+      }
+    }
+  } else if(options.dateTimeFormat) {
+    console.log(`WARNING: option "dateTimeFormat" was provided to morgan-body even though option "logReqDateTime" was set to false, value passed was: ${options.dateTimeFormat}`)
+  }
 
   const reqLogType = `dev-req${!logReqUserAgent ? '-nouseragent' : ''}${!logReqDateTime ? '-nodatetime' : ''}`;
 
@@ -40,6 +53,7 @@ module.exports = function(app, options) {
     // compile and memoize
     var formatString = '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url';
     if (logReqDateTime) formatString += ' \x1b[90mat \x1b[37m:date';
+    if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
     if (logReqUserAgent) formatString += ' \x1b[90mUser Agent: :user-agent\x1b[0m';
 
     var fn = developmentFormatLine.func = developmentFormatLine.func || compile(formatString);
