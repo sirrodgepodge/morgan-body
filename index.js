@@ -54,6 +54,7 @@ module.exports = function(app, options) {
     var formatString = '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url';
     if (logReqDateTime) formatString += ' \x1b[90mat \x1b[37m:date';
     if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
+    if (logReqDateTime && logReqUserAgent) formatString += ',';
     if (logReqUserAgent) formatString += ' \x1b[90mUser Agent: :user-agent\x1b[0m';
 
     var fn = developmentFormatLine.func = developmentFormatLine.func || compile(formatString);
