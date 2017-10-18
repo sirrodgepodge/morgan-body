@@ -17,6 +17,9 @@
 morgan.format = format;
 morgan.token = token;
 
+// allow for multiple loggers in app
+let morganBodyUseCounter = 0;
+
 module.exports = function(app, options) {
   // default options
   options = options || {};
@@ -28,8 +31,23 @@ module.exports = function(app, options) {
 
   const reqLogType = `dev-req${!logReqUserAgent ? '-nouseragent' : ''}${!logReqDateTime ? '-nodatetime' : ''}`;
 
+  // allow up to 100 loggers, likely way more than needed need to reset counter
+  // at a cutoff to avoid memory leak for developing when app live reloads
+  morganBodyUseCounter = (morganBodyUseCounter + 1) % 100;
+  var formatName = `dev-req-${morganBodyUseCounter}`;
+
+  morgan.format(formatName, function developmentFormatLine(tokens, req, res) {
+    // compile and memoize
+    var formatString = '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url';
+    if (logReqDateTime) base += ' \x1b[90mat \x1b[37m:date';
+    if (logReqUserAgent) base += ' \x1b[90mUser Agent: :user-agent\x1b[0m';
+
+    var fn = developmentFormatLine.func = developmentFormatLine.func || compile(formatString);
+    return fn(tokens, req, res);
+  });
+
   // log when request comes in
-  app.use(morgan(reqLogType, {immediate: true}));
+  app.use(morgan(formatName, { immediate: true }));
 
   if (logRequestBody || logResponseBody) {
     function logBody(prependStr, body) {
@@ -227,38 +245,6 @@ function morgan(format, options) {
 /**
  * dev (colored)
  */
-
- morgan.format('dev-req', function developmentFormatLine(tokens, req, res) {
-   // compile and memoize
-   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
-     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url \x1b[90mat \x1b[37m:date, \x1b[90mUser Agent: :user-agent\x1b[0m'
-   );
-   return fn(tokens, req, res);
- });
-
- morgan.format('dev-req-nouseragent', function developmentFormatLine(tokens, req, res) {
-   // compile and memoize
-   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
-     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url \x1b[90mat \x1b[37m:date'
-   );
-   return fn(tokens, req, res);
- });
-
- morgan.format('dev-req-nodatetime', function developmentFormatLine(tokens, req, res) {
-   // compile and memoize
-   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
-     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url \x1b[90mUser Agent: :user-agent\x1b[0m'
-   );
-   return fn(tokens, req, res);
- });
-
- morgan.format('dev-req-nouseragent-nodatetime', function developmentFormatLine(tokens, req, res) {
-   // compile and memoize
-   var fn = developmentFormatLine.func = developmentFormatLine.func || compile(
-     '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url'
-   );
-   return fn(tokens, req, res);
- });
 
 morgan.format('dev-res', function developmentFormatLine(tokens, req, res) {
   // get the status code if response written
