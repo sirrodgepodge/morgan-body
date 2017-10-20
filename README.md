@@ -32,7 +32,10 @@ morganBody(app);
 
     logDateTime: (default: true), setting to false disables logging request date + time,
 
-    dateTimeFormat: (default: 'utc', available: ['clf', 'iso', 'utc']), lets you specify dateTime format logged if "logDateTime" option is true (otherwise dateTime not logged anyways)
+    dateTimeFormat: (default: 'utc', available: ['clf', 'iso', 'utc', 'local']), lets you specify dateTime format logged if "logDateTime" option is true (otherwise dateTime not logged anyways)
+    if "local" is specified, time is logged in the local timezone. You also specify any other timezone by passing the "timezone" option along with `dateTimeFormat = "local"`
+
+    timezone: (default : local timezone), time will be logged in the specified timezone. e.g. "EST", Asia/Kolkata" (for Indian Standard Time), etc. Internally uses "momentjs" for interpreting the timezone, and if specified timezone is not understood by momentjs, falls back to using the local timezone.
 
     logReqUserAgent: (default: true), setting to false disables logging request user agent,
 
