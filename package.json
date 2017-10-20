@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/sirrodgepodge/morgan-body#readme",
   "dependencies": {
+    "moment-timezone": "^0.5.13",
     "on-finished": "^2.3.0",
     "on-headers": "^1.0.1"
   }
