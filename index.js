@@ -45,6 +45,7 @@ module.exports = function(app, options) {
     if (dateTimeFormat === "local") {
       let timezone = options.hasOwnProperty("timezone") ? options.timezone || '' : '';
       if (!moment.tz.zone(timezone)) {
+        // If passed timezone is not understood by momentjs use localtimezone
         let guessTimezone = moment.tz.guess();
         if (!timezone)
           new Error(`morgan-body was passed a value for "timezone" option that was valid (value passed was : ${timezone}. Using the guessed value : ${guessTimezone}`);
