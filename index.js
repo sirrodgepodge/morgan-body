@@ -33,9 +33,9 @@ module.exports = function(app, options) {
     if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
     else {
       dateTimeFormat = dateTimeFormat.toLowerCase().trim();
-      if (dateTimeFormat === 'gmt' || dateTimeFormat === 'utc') dateTimeFormat = ''; // GMT/UTC is default
+      if (dateTimeFormat === 'utc') dateTimeFormat = ''; // GMT/UTC is default
       if (!['iso', 'clf', ''].some(function(value) { value === dateTimeFormat })) { // enum check
-        new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', 'utc' or 'gmt' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
+        new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', or 'utc' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
       }
     }
   } else if(options.dateTimeFormat) {
