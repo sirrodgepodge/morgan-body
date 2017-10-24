@@ -9,10 +9,8 @@
 
 'use strict';
 
-/**
- * Module exports.
- * @public
- */
+// For formatting date in appropriate timezone;
+const moment = require('moment-timezone');
 
 morgan.format = format;
 morgan.token = token;
@@ -28,21 +26,37 @@ module.exports = function(app, options) {
   var logReqUserAgent = options.hasOwnProperty('logReqUserAgent') ? options.logReqUserAgent : true;
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
+  var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
     if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
     else {
       dateTimeFormat = dateTimeFormat.toLowerCase().trim();
-      if (dateTimeFormat === 'utc') dateTimeFormat = ''; // GMT/UTC is default
-      if (!['iso', 'clf', ''].some(function(value) { value === dateTimeFormat })) { // enum check
-        new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', or 'utc' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
+      if (!['iso', 'clf', 'utc', ''].some(function(value) { value === dateTimeFormat })) { // enum check
+        throw new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', or 'utc' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
+      }
+
+      // utc, iso, and CLF force GMT time, no point in providing timezone
+      if (['iso', 'utc'].some(function(value) { value === dateTimeFormat })) && options.timezone) {
+        console.log(`WARNING: morgan-body was passed a value for "timezone" option with a "dateTimeFormat" other than "edt" or "clf", all other datetime formats coerce to UTC ("timezone" passed was: ${timezone}. "dateTimeFormat" passed was ${dateTimeFormat}`);
+      } else {
+        timezone = timezone.toLowerCase().trim();
+        if (timezone === 'local') {
+          timezone = moment.tz.guess();
+        } else if (!moment.tz.zone(timezone)) {
+          throw new Error(`morgan-body was passed a value for "timezone" option that was not a valid timezone (value passed was : ${timezone}. See here for valid timezone list: https://momentjs.com/timezone/`);
+        }
+        dateTimeFormat = += `,${timezone}`;
       }
     }
-  } else if(options.dateTimeFormat) {
-    console.log(`WARNING: option "dateTimeFormat" was provided to morgan-body even though option "logReqDateTime" was set to false, value passed was: ${options.dateTimeFormat}`)
+  } else {
+    if(options.dateTimeFormat) {
+      console.log(`WARNING: option "dateTimeFormat" was provided to morgan-body even though option "logReqDateTime" was set to false, value passed was: ${options.dateTimeFormat}`)
+    }
+    if(options.timezone) {
+      console.log(`WARNING: option "timezone" was provided to morgan-body even though option "logReqDateTime" was set to false, value passed was: ${options.timezone}`)
+    }
   }
-
-  const reqLogType = `dev-req${!logReqUserAgent ? '-nouseragent' : ''}${!logReqDateTime ? '-nodatetime' : ''}`;
 
   // allow up to 100 loggers, likely way more than needed need to reset counter
   // at a cutoff to avoid memory leak for developing when app live reloads
@@ -324,16 +338,32 @@ morgan.token('response-time', function getResponseTimeToken(req, res, digits) {
  * current date
  */
 
+function formatTimezone(date, timezone) {
+  // Takes a date object and formats it as:
+  // Thu Oct 19 2017 12:35:19 GMT+0530 (IST)
+  const tzDate = moment(date).tz(timezone)
+}
+
 morgan.token('date', function getDateToken(req, res, format) {
+  format = format.split(',');
+  var dateFormat = format[0];
+  var timezone = format[1];
+
   var date = new Date();
 
-  switch (format) {
-    case 'clf':
-      return clfdate(date);
+  switch (dateFormat) {
+    case: 'utc':
+      return date.toUTCString();
     case 'iso':
       return date.toISOString();
     default:
-      return date.toUTCString();
+      if (timezone) date = formatTimezone(date, timezone);
+      switch (dateFormat) {
+        case 'clf':
+          return clfdate(date);
+        default:
+          return date.toString();
+      }
   }
 });
 
@@ -418,17 +448,20 @@ morgan.token('res', function getResponseTime(req, res, field) {
  */
 
 function clfdate(dateTime) {
-  var date = dateTime.getUTCDate();
-  var hour = dateTime.getUTCHours();
-  var mins = dateTime.getUTCMinutes();
-  var secs = dateTime.getUTCSeconds();
-  var year = dateTime.getUTCFullYear();
+  var date = dateTime.getDate();
+  var hour = dateTime.getHours();
+  var mins = dateTime.getMinutes();
+  var secs = dateTime.getSeconds();
+  var year = dateTime.getFullYear();
+  var hoursOffset = dateTime.getTimezoneOffset() / 60;
+  var absoluteHoursOffset = Math.abs(dateTime.getTimezoneOffset());
+  var hoursOffsetSign = hoursOffset === absoluteHoursOffset ? '+' : '-';
 
-  var month = clfmonth[dateTime.getUTCMonth()];
+  var month = clfmonth[dateTime.getMonth()];
 
   return pad2(date) + '/' + month + '/' + year
     + ':' + pad2(hour) + ':' + pad2(mins) + ':' + pad2(secs)
-    + ' +0000';
+    + ` ${hoursOffsetSign}${pad2(absoluteHoursOffset / 60)}00`;
 }
 
 /**
