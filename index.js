@@ -18,7 +18,7 @@ morgan.token = token;
 // allow for multiple loggers in app
 let morganBodyUseCounter = 0;
 
-module.exports = function(app, options) {
+module.exports = function morganBody(app, options) {
   // default options
   options = options || {};
   var maxBodyLength = options.hasOwnProperty('maxBodyLength') ? options.maxBodyLength : 1000;
@@ -37,7 +37,7 @@ module.exports = function(app, options) {
       }
 
       // utc, iso, and CLF force GMT time, no point in providing timezone
-      if (['iso', 'utc'].some(function(value) { value === dateTimeFormat })) && options.timezone) {
+      if (['iso', 'utc'].some(function(value) { value === dateTimeFormat }) && options.timezone) {
         console.log(`WARNING: morgan-body was passed a value for "timezone" option with a "dateTimeFormat" other than "edt" or "clf", all other datetime formats coerce to UTC ("timezone" passed was: ${timezone}. "dateTimeFormat" passed was ${dateTimeFormat}`);
       } else {
         timezone = timezone.toLowerCase().trim();
@@ -46,7 +46,7 @@ module.exports = function(app, options) {
         } else if (!moment.tz.zone(timezone)) {
           throw new Error(`morgan-body was passed a value for "timezone" option that was not a valid timezone (value passed was : ${timezone}. See here for valid timezone list: https://momentjs.com/timezone/`);
         }
-        dateTimeFormat = += `,${timezone}`;
+        dateTimeFormat += `,${timezone}`;
       }
     }
   } else {
@@ -352,15 +352,15 @@ morgan.token('date', function getDateToken(req, res, format) {
   var date = new Date();
 
   switch (dateFormat) {
-    case: 'utc':
+    case 'utc':
       return date.toUTCString();
-    case 'iso':
-      return date.toISOString();
     default:
       if (timezone) date = formatTimezone(date, timezone);
       switch (dateFormat) {
+        case 'iso':
+          return isoDate(date);
         case 'clf':
-          return clfdate(date);
+          return clfDate(date);
         default:
           return date.toString();
       }
@@ -440,24 +440,53 @@ morgan.token('res', function getResponseTime(req, res, field) {
 });
 
 /**
+  Format a date in ISO format, including UTC offset
+*/
+
+function isoDate(dateObj) {
+  var current_date = pad2(dateObj.getDate()),
+	current_month = pad2(dateObj.getMonth() + 1),
+	current_year = pad2(dateObj.getFullYear()),
+	current_hrs = pad2(dateObj.getHours()),
+	current_mins = pad2(dateObj.getMinutes()),
+	current_secs = pad2(dateObj.getSeconds()),
+  current_millisecs = pad3(dateObj.getMilliseconds()),
+  timezoneOffset = dateObj.getTimezoneOffset();
+
+  if (timezoneOffset === 0) {
+    timezoneOffset = 'Z';
+  } else {
+    var	offset_hrs = pad2(parseInt(Math.abs(timezoneOffset/60))),
+      offset_min = pad2(Math.abs(timezoneOffset%60)),
+      sign = timezoneOffset < 0 ? '+' : '-';
+
+    timezoneOffset = sign + offset_hrs + ':' + offset_min
+  }
+
+  // Current datetime
+  // String such as 2016-07-16T19:20:30
+  return current_year + '-' + current_month + '-' + current_date + 'T' + current_hrs + ':' + current_mins + ':' + current_secs + '.' + current_millisecs + timezoneOffset;
+}
+
+/**
  * Format a Date in the common log format.
  *
  * @private
- * @param {Date} dateTime
+ * @param {Date} dateObj
  * @return {string}
  */
 
-function clfdate(dateTime) {
-  var date = dateTime.getDate();
-  var hour = dateTime.getHours();
-  var mins = dateTime.getMinutes();
-  var secs = dateTime.getSeconds();
-  var year = dateTime.getFullYear();
-  var hoursOffset = dateTime.getTimezoneOffset() / 60;
-  var absoluteHoursOffset = Math.abs(dateTime.getTimezoneOffset());
+function clfDate(dateObj) {
+  var date = dateObj.getDate();
+  var hour = dateObj.getHours();
+  var mins = dateObj.getMinutes();
+  var secs = dateObj.getSeconds();
+  var year = dateObj.getFullYear();
+  var hoursOffset = dateObj.getTimezoneOffset() / 60;
+  var absoluteHoursOffset = Math.abs(dateObj.getTimezoneOffset());
   var hoursOffsetSign = hoursOffset === absoluteHoursOffset ? '+' : '-';
 
-  var month = clfmonth[dateTime.getMonth()];
+  var month = clfmonth[dateObj.getMonth()];
 
   return pad2(date) + '/' + month + '/' + year
     + ':' + pad2(hour) + ':' + pad2(mins) + ':' + pad2(secs)
@@ -575,6 +604,13 @@ function pad2(num) {
   var str = String(num);
 
   return (str.length === 1 ? '0' : '')
+    + str;
+}
+
+function pad3(num) {
+  var str = String(num);
+
+  return (str.length === 1 ? '00' : str.length === 2 ? '0' : '')
     + str;
 }
 
