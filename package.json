@@ -1,6 +1,6 @@
 {
   "name": "morgan-body",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "morgan logging req, res, and body",
   "main": "index.js",
   "scripts": {

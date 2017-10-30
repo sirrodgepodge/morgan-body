@@ -123,7 +123,7 @@ describe('morganBody()', function () {
 
   it('should warn if "timezone" provided with "dateTimeFormat" of "utc"', function (done) {
     stdOutTest(function checkReq(line) {
-      expect(line).to.equal(`WARNING: morgan-body was passed a value for "timezone" option with a "dateTimeFormat" other than "edt" or "clf", all other datetime formats coerce to UTC ("timezone" passed was: Africa/Blantyre. "dateTimeFormat" passed was utc\n`)
+      expect(line).to.equal(`\n\nWARNING: morgan-body was passed a value for "timezone" option with the "utc" "dateTimeFormat", UTC gets coerced to GMT as part of the standard ("timezone" passed was: Africa/Blantyre)\n\n\n`)
     }).then(done).catch(done);
 
     simulateRequestPromise({ dateTimeFormat: "utc", timezone: "Africa/Blantyre" }, 'get');

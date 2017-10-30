@@ -38,7 +38,7 @@ module.exports = function morganBody(app, options) {
 
       // utc, iso, and CLF force GMT time, no point in providing timezone
       if (dateTimeFormat === 'utc' && options.timezone) {
-        console.log(`WARNING: morgan-body was passed a value for "timezone" option with a "dateTimeFormat" other than "edt" or "clf", all other datetime formats coerce to UTC ("timezone" passed was: ${timezone}. "dateTimeFormat" passed was ${dateTimeFormat}`);
+        console.log(`\n\nWARNING: morgan-body was passed a value for "timezone" option with the "utc" "dateTimeFormat", UTC gets coerced to GMT as part of the standard ("timezone" passed was: ${timezone})\n\n`);
       } else {
         timezone = timezone.toLowerCase().trim();
         if (timezone === 'local') {
