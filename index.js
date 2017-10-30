@@ -32,19 +32,19 @@ module.exports = function morganBody(app, options) {
     if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
     else {
       dateTimeFormat = dateTimeFormat.toLowerCase().trim();
-      if (!['iso', 'clf', 'utc', ''].some(function(value) { value === dateTimeFormat })) { // enum check
+      if (!['iso', 'clf', 'utc', ''].some(function(value) { return value === dateTimeFormat })) { // enum check
         throw new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', or 'utc' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
       }
 
       // utc, iso, and CLF force GMT time, no point in providing timezone
-      if (['iso', 'utc'].some(function(value) { value === dateTimeFormat }) && options.timezone) {
+      if (dateTimeFormat === 'utc' && options.timezone) {
         console.log(`WARNING: morgan-body was passed a value for "timezone" option with a "dateTimeFormat" other than "edt" or "clf", all other datetime formats coerce to UTC ("timezone" passed was: ${timezone}. "dateTimeFormat" passed was ${dateTimeFormat}`);
       } else {
         timezone = timezone.toLowerCase().trim();
         if (timezone === 'local') {
           timezone = moment.tz.guess();
         } else if (!moment.tz.zone(timezone)) {
-          throw new Error(`morgan-body was passed a value for "timezone" option that was not a valid timezone (value passed was : ${timezone}. See here for valid timezone list: https://momentjs.com/timezone/`);
+          throw new Error(`morgan-body was passed a value for "timezone" option that was not a valid timezone (value passed was : ${timezone}. See here for valid timezone list see TZ column here: https://wikipedia.org/wiki/List_of_tz_database_time_zones#List`);
         }
         dateTimeFormat += `,${timezone}`;
       }
@@ -339,9 +339,7 @@ morgan.token('response-time', function getResponseTimeToken(req, res, digits) {
  */
 
 function formatTimezone(date, timezone) {
-  // Takes a date object and formats it as:
-  // Thu Oct 19 2017 12:35:19 GMT+0530 (IST)
-  const tzDate = moment(date).tz(timezone)
+  return moment(date).tz(timezone);
 }
 
 morgan.token('date', function getDateToken(req, res, format) {
@@ -362,7 +360,8 @@ morgan.token('date', function getDateToken(req, res, format) {
         case 'clf':
           return clfDate(date);
         default:
-          return date.toString();
+          const offset = date.utcOffset();
+          return date.clone().add(offset, 'm').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
       }
   }
 });
@@ -444,27 +443,25 @@ morgan.token('res', function getResponseTime(req, res, field) {
 */
 
 function isoDate(dateObj) {
-  var current_date = pad2(dateObj.getDate()),
-	current_month = pad2(dateObj.getMonth() + 1),
-	current_year = pad2(dateObj.getFullYear()),
-	current_hrs = pad2(dateObj.getHours()),
-	current_mins = pad2(dateObj.getMinutes()),
-	current_secs = pad2(dateObj.getSeconds()),
-  current_millisecs = pad3(dateObj.getMilliseconds()),
-  timezoneOffset = dateObj.getTimezoneOffset();
+  var current_date = pad2(dateObj.date()),
+  	current_month = pad2(dateObj.month() + 1),
+  	current_year = pad2(dateObj.year()),
+  	current_hrs = pad2(dateObj.hours()),
+  	current_mins = pad2(dateObj.minutes()),
+  	current_secs = pad2(dateObj.seconds()),
+    current_millisecs = pad3(dateObj.milliseconds()),
+    timezoneOffset = dateObj.utcOffset();
 
   if (timezoneOffset === 0) {
     timezoneOffset = 'Z';
   } else {
     var	offset_hrs = pad2(parseInt(Math.abs(timezoneOffset/60))),
       offset_min = pad2(Math.abs(timezoneOffset%60)),
-      sign = timezoneOffset < 0 ? '+' : '-';
+      sign = timezoneOffset > 0 ? '+' : '-';
 
-    timezoneOffset = sign + offset_hrs + ':' + offset_min
+    timezoneOffset = sign + offset_hrs + ':' + offset_min;
   }
 
-  // Current datetime
-  // String such as 2016-07-16T19:20:30
   return current_year + '-' + current_month + '-' + current_date + 'T' + current_hrs + ':' + current_mins + ':' + current_secs + '.' + current_millisecs + timezoneOffset;
 }
 
@@ -477,20 +474,20 @@ function isoDate(dateObj) {
  */
 
 function clfDate(dateObj) {
-  var date = dateObj.getDate();
-  var hour = dateObj.getHours();
-  var mins = dateObj.getMinutes();
-  var secs = dateObj.getSeconds();
-  var year = dateObj.getFullYear();
-  var hoursOffset = dateObj.getTimezoneOffset() / 60;
-  var absoluteHoursOffset = Math.abs(dateObj.getTimezoneOffset());
-  var hoursOffsetSign = hoursOffset === absoluteHoursOffset ? '+' : '-';
+  var hoursOffset = dateObj.utcOffset() / 6;
+  var absoluteHoursOffset = Math.abs(hoursOffset);
+  var hoursOffsetSign = hoursOffset === absoluteHoursOffset ? '+' : '-'; // true === positive
 
-  var month = clfmonth[dateObj.getMonth()];
+  var date = dateObj.date();
+  var hour = dateObj.hours();
+  var mins = dateObj.minutes();
+  var secs = dateObj.seconds();
+  var year = dateObj.year();
+  var month = clfmonth[dateObj.month()];
 
   return pad2(date) + '/' + month + '/' + year
     + ':' + pad2(hour) + ':' + pad2(mins) + ':' + pad2(secs)
-    + ` ${hoursOffsetSign}${pad2(absoluteHoursOffset / 60)}00`;
+    + ` ${hoursOffsetSign}${pad3(absoluteHoursOffset)}0`;
 }
 
 /**
