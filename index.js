@@ -9,6 +9,9 @@
 
 'use strict';
 
+// For formatting date in appropriate timezone;
+const moment = require('moment-timezone');
+
 /**
  * Module exports.
  * @public
@@ -37,6 +40,18 @@ module.exports = function(app, options) {
       if (!['iso', 'clf', ''].some(function(value) { value === dateTimeFormat })) { // enum check
         new Error(`morgan-body was passed a value that was not one of 'iso', 'clf', or 'utc' for "dateTimeFormat" option, value passed was: ${options.dateTimeFormat}`);
       }
+    }
+
+    if (dateTimeFormat === "local") {
+      let timezone = options.hasOwnProperty("timezone") ? options.timezone || '' : '';
+      if (!moment.tz.zone(timezone)) {
+        // If passed timezone is not understood by momentjs use localtimezone
+        let guessTimezone = moment.tz.guess();
+        if (timezone)
+          new Error(`morgan-body was passed a value for "timezone" option that was valid (value passed was : ${timezone}. Using the guessed value : ${guessTimezone}`);
+        timezone = guessTimezone;
+      }
+      dateTimeFormat = `local,${timezone}`;
     }
   } else if(options.dateTimeFormat) {
     console.log(`WARNING: option "dateTimeFormat" was provided to morgan-body even though option "logReqDateTime" was set to false, value passed was: ${options.dateTimeFormat}`)
@@ -324,6 +339,25 @@ morgan.token('response-time', function getResponseTimeToken(req, res, digits) {
  * current date
  */
 
+function formatTimezone(date, timezone) {
+  // Takes a date object and formats it as:
+  // Thu Oct 19 2017 12:35:19 GMT+0530 (IST)
+  const tzDate = moment(date).tz(timezone);
+  return `${tzDate.toString()} (${tzDate.format('z')})`;
+}
+
+function checkLocalTimezone(format) {
+  // Checks if the format passed if of the form `local,<timezone>`
+  // if yes returns the timezone, otherwise returns null
+  const split = format.split(",");
+  const prefix = split[0];
+  const suffix = split.slice(1).join(",");
+  if (prefix === "local")
+    return suffix;
+  else
+    return null;
+}
+
 morgan.token('date', function getDateToken(req, res, format) {
   var date = new Date();
 
@@ -333,7 +367,11 @@ morgan.token('date', function getDateToken(req, res, format) {
     case 'iso':
       return date.toISOString();
     default:
-      return date.toUTCString();
+      const tz = checkLocalTimezone(format);
+      if (tz)
+        return formatTimezone(date, tz);
+      else
+        return date.toUTCString();
   }
 });
 
