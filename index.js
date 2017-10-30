@@ -360,8 +360,7 @@ morgan.token('date', function getDateToken(req, res, format) {
         case 'clf':
           return clfDate(date);
         default:
-          const offset = date.utcOffset();
-          return date.clone().add(offset, 'm').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+          return date.format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
       }
   }
 });
