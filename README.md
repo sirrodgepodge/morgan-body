@@ -41,6 +41,9 @@ morganBody(app);
     logRequestBody: (default: true), setting to false disables logging request body,
 
     logResponseBody: (default: true), setting to false disables logging response body
+
+    skip: (default: false), function (req, res) => bool,
+    Function to skip logging of some requests
   }
   ```
 
