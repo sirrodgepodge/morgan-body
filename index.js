@@ -27,6 +27,7 @@ module.exports = function morganBody(app, options) {
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
+  var skip = options.hasOwnProperty('skip') ? options.skip : false
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
     if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
@@ -76,7 +77,7 @@ module.exports = function morganBody(app, options) {
   });
 
   // log when request comes in
-  app.use(morgan(formatName, { immediate: true }));
+  app.use(morgan(formatName, { immediate : true, skip : skip } ));
 
   if (logRequestBody || logResponseBody) {
     function logBody(prependStr, body) {
@@ -124,7 +125,9 @@ module.exports = function morganBody(app, options) {
 
     if (logRequestBody) {
       app.use(function(req, res, next) { // log body if sent
-        if (req.hasOwnProperty('body')) logBody('Request', req.body);
+        if ( req.hasOwnProperty('body') && !(skip && skip(req, res)) ) {
+          logBody('Request', req.body);
+        } 
         next();
       });
     }
@@ -139,7 +142,9 @@ module.exports = function morganBody(app, options) {
 
       // allow mimicking node-restify server.on('after', fn) behavior
       app.use(function (req, res, next) {
-        onFinished(res, logRes);
+        if( !(skip && skip(req, res)) ){
+          onFinished(res, logRes);
+        }
         next();
       });
 
@@ -152,7 +157,7 @@ module.exports = function morganBody(app, options) {
   }
 
   // log response metadata (modified source to remove method and url)
-  app.use(morgan('dev-res'));
+  app.use(morgan('dev-res', { skip : skip }));
 };
 
 // module.exports = morgan;
