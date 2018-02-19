@@ -43,6 +43,7 @@ morganBody(app);
     logResponseBody: (default: true), setting to false disables logging response body
 
     skip: (default: false), optionally provide function of the signature "(req, res) => <bool>" to conditionally skip logging of requests (if provided function returns true)
+    }
   ```
 
 [nodei-image]: https://nodei.co/npm/morgan-body.png?downloads=true&downloadRank=true&stars=true
