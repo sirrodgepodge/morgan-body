@@ -152,4 +152,16 @@ describe('morganBody()', function () {
 
     simulateRequestPromise({ dateTimeFormat: 'clf', timezone: "Africa/Blantyre" }, 'get');
   });
+
+  it('"skip" property should enable function to conditionally skip logging a line', function(done) {
+    let message = 'was not called';
+    stdOutTest(() => {}).then(() => {
+      message = 'was called';
+    });
+
+    simulateRequestPromise({ skip: () => true }, 'get');
+    new Promise(resolve => setTimeout(resolve, 1)).then(() => {
+      expect(message).to.equal('was not called');
+    }).then(done).catch(done);
+  });
 });
