@@ -1,4 +1,4 @@
-// accepts array of functions
+// accepts argument array of functions
 module.exports = function stdOutTest(...arr) {
   const arrLength = arr.length;
   let callCount = 0;
@@ -10,6 +10,7 @@ module.exports = function stdOutTest(...arr) {
           arr[callCount](line);
         } catch(e) {
           removeStdOutListeners();
+          console.log({ callCount });
           return reject(e);
         }
         if (callCount === arrLength - 1) {
