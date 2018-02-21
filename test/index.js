@@ -159,7 +159,7 @@ describe('morganBody()', function () {
       message = 'was called';
     });
 
-    simulateRequestPromise({ skip: () => true }, 'get');
+    simulateRequestPromise({ morganOptions: { skip: () => true } }, 'get');
     new Promise(resolve => setTimeout(resolve, 1)).then(() => {
       expect(message).to.equal('was not called');
     }).then(done).catch(done);
