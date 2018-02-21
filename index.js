@@ -84,7 +84,23 @@ module.exports = function morganBody(app, options) {
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
-  var skip = options.hasOwnProperty('skip') ? options.skip : false
+
+  // handling of native morgan options
+  var morganOptions = {};
+  if (options.hasOwnProperty('buffer')) {
+    throw new Error("morgan-body at present does not support morgan's \"buffer\" option, to do so the multiple underlying morgan formats this library uses would need to be combined into one, would love a PR for that! https://github.com/sirrodgepodge/morgan-body");
+  }
+  if (options.hasOwnProperty('immediate')) {
+    console.log(`\n\nWARNING: morgan-body was passed a morganOptions object with an "immediate" property, value passed was: ${morganOptions.immediate}, this is ignored by morgan-body as its manipulation is required internally\n\n`);
+  }
+  if (options.hasOwnProperty('stream')) {
+    morganOptions.stream = options.stream;
+  }
+  if (options.hasOwnProperty('skip')) {
+    morganOptions.skip = options.skip;
+  }
+
+
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
     if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
@@ -134,59 +150,21 @@ module.exports = function morganBody(app, options) {
   });
 
   // log when request comes in
-  app.use(morgan(formatName, { immediate : true, skip : skip } ));
+  var reqMorganOptions = shallowClone(morganOptions);
+  reqMorganOptions.immediate = true;
+  app.use(morgan(formatName, morganOptions));
 
   if (logRequestBody || logResponseBody) {
-    function logBody(prependStr, body) {
-      var bodyType = typeof body;
-      var isObj = body !== null && bodyType === 'object';
-      var isString = bodyType === 'string';
-      var parseFailed = false;
-
-      if (isString) {
-        try {
-          body = JSON.parse(body);
-          bodyType = typeof body;
-          isObj = body !== null && bodyType === 'object';
-          isString = bodyType === 'string';
-        } catch(e) { }
-      }
-
-      if (body instanceof Buffer) {
-        body = '<Buffer>';
-        bodyType = 'string';
-        isObj = false;
-        isString = true;
-      }
-
-      if (!isObj && !isString && body !== undefined) {
-        body = ""+body; // coerce to string if primitive
-        isString = true;
-      }
-
-      if (isString && body.length) {
-        console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
-
-        if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
-        console.log('\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m');
-      } else if(isObj && Object.keys(body).length) {
-        console.log('\x1b[95m' + prependStr + ' Body:\x1b[0m');
-
-        var stringifiedObj = JSON.stringify(body, null, '\t');
-        if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
-        stringifiedObj
-          .split('\n') // split + loop needed for multi-line coloring
-          .forEach(line => console.log('\x1b[97m' + line + '\x1b[0m'));
-      }
+    function logBodyGen(prependStr, getBodyFunc) {
+      var formatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
+      morgan.format(formatName, function logBody(_, req, res) {
+        return bodyToString(maxBodyLength, prependStr, getBodyFunc(req, res));
+      });
+      return formatName;
     }
 
     if (logRequestBody) {
-      app.use(function(req, res, next) { // log body if sent
-        if ( req.hasOwnProperty('body') && !(skip && skip(req, res)) ) {
-          logBody('Request', req.body);
-        } 
-        next();
-      });
+      app.use(morgan(logBodyGen('Request', req => req.body), morganOptions));
     }
 
     if (logResponseBody) {
@@ -197,24 +175,12 @@ module.exports = function morganBody(app, options) {
         this.__morgan_body_response = body;
       };
 
-      // allow mimicking node-restify server.on('after', fn) behavior
-      app.use(function (req, res, next) {
-        if( !(skip && skip(req, res)) ){
-          onFinished(res, logRes);
-        }
-        next();
-      });
-
-      function logRes(err, res) {
-        if (!err && res.hasOwnProperty('__morgan_body_response')) {
-          logBody('Response', res.__morgan_body_response);
-        }
-      }
+      app.use(morgan(logBodyGen('Response', (req, res) => res.__morgan_body_response), morganOptions));
     }
   }
 
   // log response metadata (modified source to remove method and url)
-  app.use(morgan('dev-res', { skip : skip }));
+  app.use(morgan('dev-res', morganOptions));
 };
 
 // module.exports = morgan;
@@ -259,10 +225,11 @@ function morgan(format, options) {
   var fmt = format;
   var opts = options || {};
 
-  if (format && typeof format === 'object') {
-    opts = format;
-    fmt = opts.format || 'default';
-  }
+  // unnecessary since we only call this function internally
+  // if (format && typeof format === 'object') {
+  //   opts = format;
+  //   fmt = opts.format || 'default';
+  // }
 
   // output on request instead of response
   var immediate = opts.immediate;
