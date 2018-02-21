@@ -1,4 +1,4 @@
-// accepts array of functions
+// accepts argument array of functions
 module.exports = function stdOutTest(...arr) {
   const arrLength = arr.length;
   let callCount = 0;

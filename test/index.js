@@ -31,37 +31,30 @@ describe('morganBody()', function () {
   });
 
   it('should log request and response body correctly', function (done) {
-    const keyValFuncs = [function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m{\u001b[0m\n`)
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m\t"key": "value",\u001b[0m\n`)
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m\t"key2": "value2"\u001b[0m\n`)
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m}\u001b[0m\n`)
-    }];
+    const sharedStr = `\u001b[97m{\u001b[0m
+\u001b[97m\t"key": "value",\u001b[0m
+\u001b[97m\t"key2": "value2"\u001b[0m
+\u001b[97m}\u001b[0m
+`;
 
     stdOutTest(standardRequestLineCheck, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[95mRequest Body:\u001b[0m\n`);
-    }, ...keyValFuncs, function checkResBody(line) {
-      expect(line).to.equal(`\u001b[95mResponse Body:\u001b[0m\n`);
-    }, ...keyValFuncs, standardResponseLineCheck).then(done).catch(done);
+      expect(line).to.equal(`\u001b[95mRequest Body:\u001b[0m\n` + sharedStr);
+    }, function checkResBody(line) {
+      expect(line).to.equal(`\u001b[95mResponse Body:\u001b[0m\n` + sharedStr);
+    }, standardResponseLineCheck).then(done).catch(done);
 
     simulateRequestPromise(null, 'get', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
   });
 
   it('should respect "maxBodyLength" property', function (done) {
     stdOutTest(standardPostRequestLineCheck, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[95mRequest Body:\u001b[0m\n`);
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m{\u001b[0m\n`)
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m\t"key": "value",\u001b[0m\n`)
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m\t"long": "aodshglkdgdlbgkz,bcmnxbvmcbgnsdlajkghdsalkjghxzlkgndajlkgㅓㅏ홍허ㅏ아ㅓ힝히ㅏㅓㅗㅇ마\u001b[0m\n`)
-    }, function checkReqBody(line) {
-      expect(line).to.equal(`\u001b[97m...\u001b[0m\n`)
-    }).then(done).catch(done);
+      expect(line).to.equal(`\u001b[95mRequest Body:\u001b[0m
+\u001b[97m{\u001b[0m
+\u001b[97m\t"key": "value",\u001b[0m
+\u001b[97m\t"long": "aodshglkdgdlbgkz,bcmnxbvmcbgnsdlajkghdsalkjghxzlkgndajlkgㅓㅏ홍허ㅏ아ㅓ힝히ㅏㅓㅗㅇ마\u001b[0m
+\u001b[97m...\u001b[0m
+`);
+    }).then(done).catch(done)
 
     simulateRequestPromise({ maxBodyLength: 100 }, 'post', {
       key: 'value',
