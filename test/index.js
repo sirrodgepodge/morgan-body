@@ -152,9 +152,20 @@ describe('morganBody()', function () {
       message = 'was called';
     });
 
-    simulateRequestPromise({ morganOptions: { skip: () => true } }, 'get');
-    new Promise(resolve => setTimeout(resolve, 1)).then(() => {
+    simulateRequestPromise({ skip: () => true }, 'get').then(() => {
       expect(message).to.equal('was not called');
-    }).then(done).catch(done);
+      done();
+    }).catch(done);
+  });
+
+  it('"stream" property should enable writing somewhere other than stdout', function(done) {
+    var arr = [];
+
+    simulateRequestPromise({ stream: { write: text => arr.push(text) } }, 'get').then(() => {
+      const [reqStr, resStr] = arr;
+      standardRequestLineCheck(reqStr);
+      standardResponseLineCheck(resStr);
+      done();
+    }).catch(done);
   });
 });

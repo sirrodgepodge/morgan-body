@@ -84,12 +84,23 @@ module.exports = function morganBody(app, options) {
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
-  var morganOptions = options.morganOptions || {};
-  if (morganOptions.hasOwnProperty('immediate')) {
-    console.log(`\n\nWARNING: morgan-body was passed a morganOptions object with an "immediate" property, value passed was: ${morganOptions.immediate}, this is ignored by morgan-body as its manipulation is required internally\n\n`);
-    morganOptions = shallowClone(morganOptions);
-    delete morganOptions.immediate;
+
+  // handling of native morgan options
+  var morganOptions = {};
+  if (options.hasOwnProperty('buffer')) {
+    throw new Error("morgan-body at present does not support morgan's \"buffer\" option, to do so the multiple underlying morgan formats this library uses would need to be combined into one, would love a PR for that! https://github.com/sirrodgepodge/morgan-body");
   }
+  if (options.hasOwnProperty('immediate')) {
+    console.log(`\n\nWARNING: morgan-body was passed a morganOptions object with an "immediate" property, value passed was: ${morganOptions.immediate}, this is ignored by morgan-body as its manipulation is required internally\n\n`);
+  }
+  if (options.hasOwnProperty('stream')) {
+    morganOptions.stream = options.stream;
+  }
+  if (options.hasOwnProperty('skip')) {
+    morganOptions.skip = options.skip;
+  }
+
+
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
     if (typeof dateTimeFormat !== 'string') throw new Error(`morgan-body was passed a non-string value for "dateTimeFormat" option, value passed was: ${dateTimeFormat}`);
@@ -214,10 +225,11 @@ function morgan(format, options) {
   var fmt = format;
   var opts = options || {};
 
-  if (format && typeof format === 'object') {
-    opts = format;
-    fmt = opts.format || 'default';
-  }
+  // unnecessary since we only call this function internally
+  // if (format && typeof format === 'object') {
+  //   opts = format;
+  //   fmt = opts.format || 'default';
+  // }
 
   // output on request instead of response
   var immediate = opts.immediate;
