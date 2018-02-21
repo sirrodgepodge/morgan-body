@@ -10,6 +10,7 @@ module.exports = function stdOutTest(...arr) {
           arr[callCount](line);
         } catch(e) {
           removeStdOutListeners();
+          console.log({ callCount });
           return reject(e);
         }
         if (callCount === arrLength - 1) {
