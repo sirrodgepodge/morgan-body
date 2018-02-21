@@ -40,9 +40,11 @@ morganBody(app);
 
     logRequestBody: (default: true), setting to false disables logging request body,
 
-    logResponseBody: (default: true), setting to false disables logging response body
+    logResponseBody: (default: true), setting to false disables logging response body,
 
-    skip: (default: null), optionally provide function of the signature "(req, res) => <bool>" to conditionally skip logging of requests (if provided function returns true)
+    skip: (default: null), optionally provide function of the signature "(req, res) => <bool>" to conditionally skip logging of requests (if provided function returns true),
+
+    stream: (default: null), optionally provide a stream (or any object of the shape { write: <Function> }) to be used instead of "process.stdout" for logging to
   }
   ```
 
