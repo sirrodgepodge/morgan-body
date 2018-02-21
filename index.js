@@ -18,6 +18,63 @@ morgan.token = token;
 // allow for multiple loggers in app
 let morganBodyUseCounter = 0;
 
+function shallowClone(obj) {
+  var newObj = {};
+  Object.keys(obj).forEach(function keyLoop(key) {
+    newObj[key] = obj[key];
+  });
+  return newObj;
+}
+
+function bodyToString(maxBodyLength, prependStr, body) {
+  if (!body) {
+    return null; // must return "null" to avoid morgan logging blank line
+  }
+
+  var finalStr = '';
+
+  var bodyType = typeof body;
+  var isObj = body !== null && bodyType === 'object';
+  var isString = bodyType === 'string';
+
+  if (isString) {
+    try {
+      body = JSON.parse(body);
+      bodyType = typeof body;
+      isObj = body !== null && bodyType === 'object';
+      isString = bodyType === 'string';
+    } catch(e) { }
+  }
+
+  if (body instanceof Buffer) {
+    body = '<Buffer>';
+    bodyType = 'string';
+    isObj = false;
+    isString = true;
+  }
+
+  if (!isObj && !isString && body !== undefined) {
+    body = ""+body; // coerce to string if primitive
+    isString = true;
+  }
+
+  if (isString && body.length) {
+    finalStr += '\x1b[95m' + prependStr + ' Body:\x1b[0m';
+
+    if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
+    finalStr += '\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m';
+  } else if(isObj && Object.keys(body).length > 0) {
+    finalStr += '\x1b[95m' + prependStr + ' Body:\x1b[0m';
+
+    var stringifiedObj = JSON.stringify(body, null, '\t');
+    if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
+    stringifiedObj
+      .split('\n') // split + loop needed for multi-line coloring
+      .forEach(line => { finalStr += '\n\x1b[97m' + line + '\x1b[0m'; });
+  }
+  return finalStr || null; // must return "null" to avoid morgan logging blank line
+}
+
 module.exports = function morganBody(app, options) {
   // default options
   options = options || {};
