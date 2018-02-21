@@ -84,15 +84,11 @@ module.exports = function morganBody(app, options) {
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
-  var morganOptions = options.hasOwnProperty('morganOptions');
-  if (morganOptions) {
-    if (morganOptions.hasOwnProperty('immediate')) {
-      console.log(`\n\nWARNING: morgan-body was passed a morganOptions object with an "immediate" property, value passed was: ${morganOptions.immediate}, this is ignored by morgan-body as its manipulation is required internally\n\n`);
-      morganOptions = shallowClone(morganOptions);
-      delete morganOptions.immediate;
-    }
-  } else {
-    morganOptions = {}
+  var morganOptions = options.morganOptions || {};
+  if (morganOptions.hasOwnProperty('immediate')) {
+    console.log(`\n\nWARNING: morgan-body was passed a morganOptions object with an "immediate" property, value passed was: ${morganOptions.immediate}, this is ignored by morgan-body as its manipulation is required internally\n\n`);
+    morganOptions = shallowClone(morganOptions);
+    delete morganOptions.immediate;
   }
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
@@ -157,10 +153,7 @@ module.exports = function morganBody(app, options) {
     }
 
     if (logRequestBody) {
-      const logReqBodyFunc = morgan(logBodyGen('Request', req => req.body), morganOptions);
-      app.use(function logReqBody(req, res, next) {
-        logReqBodyFunc(req, res, next);
-      });
+      app.use(morgan(logBodyGen('Request', req => req.body), morganOptions));
     }
 
     if (logResponseBody) {
