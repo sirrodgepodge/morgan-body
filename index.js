@@ -171,17 +171,7 @@ module.exports = function morganBody(app, options) {
         this.__morgan_body_response = body;
       };
 
-      // allow mimicking node-restify server.on('after', fn) behavior
-      var resMorganOptions = shallowClone(morganOptions);
-      resMorganOptions.immediate = true;
-      var resBodyLogFunc = morgan(logBodyGen('Response', (req, res) => res.__morgan_body_response), resMorganOptions);
-      var noop = () => {};
-      app.use(function logBody(req, res, next) {
-        onFinished(res, function logRes(err) {
-          if (!err) resBodyLogFunc(req, res, noop);
-        });
-        next();
-      });
+      app.use(morgan(logBodyGen('Response', (req, res) => res.__morgan_body_response), morganOptions));
     }
   }
 
