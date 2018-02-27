@@ -28,6 +28,8 @@ morganBody(app);
   Options are:
   ```
   {
+    noColors: (default: false), gets rid of colors in logs, while they're awesome, they don't look so good in log files as @rserentill pointed out
+
     maxBodyLength: (default: 1000), caps the length of the console output of a single request/response to specified length,
 
     logReqDateTime: (default: true), setting to false disables logging request date + time,
