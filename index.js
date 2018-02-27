@@ -1,12 +1,3 @@
-/*!
- * morgan
- * Copyright(c) 2010 Sencha Inc.
- * Copyright(c) 2011 TJ Holowaychuk
- * Copyright(c) 2014 Jonathan Ong
- * Copyright(c) 2014-2015 Douglas Christopher Wilson
- * MIT Licensed
- */
-
 'use strict';
 
 // For formatting date in appropriate timezone;
@@ -26,7 +17,9 @@ function shallowClone(obj) {
   return newObj;
 }
 
-function bodyToString(maxBodyLength, prependStr, body) {
+const ansiRegex = /\x1b.*?[mGKH]/g;
+
+function bodyToString(maxBodyLength, noColors, prependStr, body) {
   if (!body) {
     return null; // must return "null" to avoid morgan logging blank line
   }
@@ -59,18 +52,18 @@ function bodyToString(maxBodyLength, prependStr, body) {
   }
 
   if (isString && body.length) {
-    finalStr += '\x1b[95m' + prependStr + ' Body:\x1b[0m';
+    finalStr += noColors ? prependStr + ' Body:' : '\x1b[95m' + prependStr + ' Body:\x1b[0m';
 
     if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
-    finalStr += '\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m';
+    finalStr += noColors ? body.slice(0, maxBodyLength) : '\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m';
   } else if(isObj && Object.keys(body).length > 0) {
-    finalStr += '\x1b[95m' + prependStr + ' Body:\x1b[0m';
+    finalStr += noColors ? prependStr + ' Body:' : '\x1b[95m' + prependStr + ' Body:\x1b[0m';
 
     var stringifiedObj = JSON.stringify(body, null, '\t');
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
     stringifiedObj
       .split('\n') // split + loop needed for multi-line coloring
-      .forEach(line => { finalStr += '\n\x1b[97m' + line + '\x1b[0m'; });
+      .forEach(line => { finalStr += noColors ? '\n' + line : '\n\x1b[97m' + line + '\x1b[0m'; });
   }
   return finalStr || null; // must return "null" to avoid morgan logging blank line
 }
@@ -84,6 +77,7 @@ module.exports = function morganBody(app, options) {
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
+  var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
 
   // handling of native morgan options
   var morganOptions = {};
@@ -135,32 +129,36 @@ module.exports = function morganBody(app, options) {
   // allow up to 100 loggers, likely way more than needed need to reset counter
   // at a cutoff to avoid memory leak for developing when app live reloads
   morganBodyUseCounter = (morganBodyUseCounter + 1) % 100;
-  var formatName = `dev-req-${morganBodyUseCounter}`;
+  var morganReqFormatName = `dev-req-${morganBodyUseCounter}`;
 
-  morgan.format(formatName, function developmentFormatLine(tokens, req, res) {
-    // compile and memoize
-    var formatString = '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url';
-    if (logReqDateTime) formatString += ' \x1b[90mat \x1b[37m:date';
-    if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
-    if (logReqDateTime && logReqUserAgent) formatString += ',';
-    if (logReqUserAgent) formatString += ' \x1b[90mUser Agent: :user-agent\x1b[0m';
+  morgan.format(morganReqFormatName, function developmentFormatLine(tokens, req, res) {
+    var fn = developmentFormatLine.func;
+    if (!fn) {
+      // compile and memoize
+      var formatString = '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url';
+      if (logReqDateTime) formatString += ' \x1b[90mat \x1b[37m:date';
+      if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
+      if (logReqDateTime && logReqUserAgent) formatString += ',';
+      if (logReqUserAgent) formatString += ' \x1b[90mUser Agent: :user-agent\x1b[0m';
+      if (noColors) formatString = formatString.replace(ansiRegex, '');
+      fn = developmentFormatLine.func = compile(formatString);
+    }
 
-    var fn = developmentFormatLine.func = developmentFormatLine.func || compile(formatString);
     return fn(tokens, req, res);
   });
 
   // log when request comes in
   var reqMorganOptions = shallowClone(morganOptions);
   reqMorganOptions.immediate = true;
-  app.use(morgan(formatName, morganOptions));
+  app.use(morgan(morganReqFormatName, morganOptions));
 
   if (logRequestBody || logResponseBody) {
     function logBodyGen(prependStr, getBodyFunc) {
-      var formatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
-      morgan.format(formatName, function logBody(_, req, res) {
-        return bodyToString(maxBodyLength, prependStr, getBodyFunc(req, res));
+      var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
+      morgan.format(bodyFormatName, function logBody(_, req, res) {
+        return bodyToString(maxBodyLength, noColors, prependStr, getBodyFunc(req, res));
       });
-      return formatName;
+      return bodyFormatName;
     }
 
     if (logRequestBody) {
@@ -179,8 +177,37 @@ module.exports = function morganBody(app, options) {
     }
   }
 
-  // log response metadata (modified source to remove method and url)
-  app.use(morgan('dev-res', morganOptions));
+  var morganResFormatName = `dev-res-${morganBodyUseCounter}`;
+
+  // log response metadata (modified morgan source to remove method and url, added colors)
+  morgan.format(morganResFormatName, function developmentFormatLine(tokens, req, res) {
+    // get the status code if response written
+    var status = res._header
+      ? res.statusCode
+      : undefined;
+
+    // get status color
+    var color = status >= 500 ? 31 // red
+      : status >= 400 ? 33 // yellow
+      : status >= 300 ? 36 // cyan
+      : status >= 200 ? 32 // green
+      : 0; // no color
+
+    // get colored function
+    var fn = developmentFormatLine[color];
+
+    if (!fn) {
+      // compile
+      var responseStr = '\x1b[96mResponse: \x1b['
+        + color + 'm:status \x1b[0m:response-time ms - :res[content-length]\x1b[0m';
+      if (noColors) responseStr = responseStr.replace(ansiRegex, '');
+      fn = developmentFormatLine[color] = compile(responseStr);
+    }
+
+    return fn(tokens, req, res);
+  });
+
+  app.use(morgan(morganResFormatName, morganOptions));
 };
 
 // module.exports = morgan;
@@ -299,35 +326,6 @@ function morgan(format, options) {
     next();
   };
 }
-
-/**
- * dev (colored)
- */
-
-morgan.format('dev-res', function developmentFormatLine(tokens, req, res) {
-  // get the status code if response written
-  var status = res._header
-    ? res.statusCode
-    : undefined;
-
-  // get status color
-  var color = status >= 500 ? 31 // red
-    : status >= 400 ? 33 // yellow
-    : status >= 300 ? 36 // cyan
-    : status >= 200 ? 32 // green
-    : 0; // no color
-
-  // get colored function
-  var fn = developmentFormatLine[color];
-
-  if (!fn) {
-    // compile
-    fn = developmentFormatLine[color] = compile('\x1b[96mResponse: \x1b['
-      + color + 'm:status \x1b[0m:response-time ms - :res[content-length]\x1b[0m');
-  }
-
-  return fn(tokens, req, res);
-});
 
 /**
  * request url

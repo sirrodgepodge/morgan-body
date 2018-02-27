@@ -37,13 +37,33 @@ describe('morganBody()', function () {
 \u001b[97m}\u001b[0m
 `;
 
-    stdOutTest(standardRequestLineCheck, function checkReqBody(line) {
+    stdOutTest(standardPostRequestLineCheck, function checkReqBody(line) {
       expect(line).to.equal(`\u001b[95mRequest Body:\u001b[0m\n` + sharedStr);
     }, function checkResBody(line) {
       expect(line).to.equal(`\u001b[95mResponse Body:\u001b[0m\n` + sharedStr);
     }, standardResponseLineCheck).then(done).catch(done);
 
-    simulateRequestPromise(null, 'get', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
+    simulateRequestPromise(null, 'post', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
+  });
+
+  it('should log request and response body correctly without colors', function (done) {
+    const sharedStr = `{
+\t"key": "value",
+\t"key2": "value2"
+}
+`;
+
+    stdOutTest(function checkReqBody(line) {
+      expect(line).to.equal('Request: POST / at Wed Dec 31 1969 19:00:00 GMT-0500, User Agent: node-superagent/1.3.0\n');
+    }, function checkReqBody(line) {
+      expect(line).to.equal(`Request Body:\n` + sharedStr);
+    }, function checkResBody(line) {
+      expect(line).to.equal(`Response Body:\n` + sharedStr);
+    }, function checkResLine(line) {
+      expect(forceResponseTimeToZero(line)).to.equal(`Response: 200 0.000 ms - -\n`);
+    }).then(done).catch(done);
+
+    simulateRequestPromise({ noColors: true }, 'post', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
   });
 
   it('should respect "maxBodyLength" property', function (done) {
