@@ -19,7 +19,7 @@ function shallowClone(obj) {
 
 const ansiRegex = /\x1b.*?[mGKH]/g;
 
-function bodyToString(maxBodyLength, noColors, prependStr, body) {
+function bodyToString(maxBodyLength, noColors, prettify, prependStr, body) {
   if (!body) {
     return null; // must return "null" to avoid morgan logging blank line
   }
@@ -59,11 +59,12 @@ function bodyToString(maxBodyLength, noColors, prependStr, body) {
   } else if(isObj && Object.keys(body).length > 0) {
     finalStr += noColors ? prependStr + ' Body:' : '\x1b[95m' + prependStr + ' Body:\x1b[0m';
 
-    var stringifiedObj = JSON.stringify(body, null, '\t');
+    var stringifiedObj = JSON.stringify(body, null, prettify ? '\t' : null);
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
+    var separator = prettify ? '\n' : '';
     stringifiedObj
       .split('\n') // split + loop needed for multi-line coloring
-      .forEach(line => { finalStr += noColors ? '\n' + line : '\n\x1b[97m' + line + '\x1b[0m'; });
+      .forEach(line => { finalStr += noColors ? separator + line : '\n\x1b[97m' + line + '\x1b[0m'; });
   }
   return finalStr || null; // must return "null" to avoid morgan logging blank line
 }
@@ -78,6 +79,7 @@ module.exports = function morganBody(app, options) {
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
+  var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
 
   // handling of native morgan options
   var morganOptions = {};
@@ -156,7 +158,7 @@ module.exports = function morganBody(app, options) {
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
-        return bodyToString(maxBodyLength, noColors, prependStr, getBodyFunc(req, res));
+        return bodyToString(maxBodyLength, noColors, prettify, prependStr, getBodyFunc(req, res));
       });
       return bodyFormatName;
     }
