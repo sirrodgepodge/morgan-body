@@ -96,6 +96,10 @@ module.exports = function morganBody(app, options) {
     morganOptions.skip = options.skip;
   }
 
+  if (options.hasOwnProperty('prettify')) {
+    morganOptions.prettify = options.prettify;
+  }
+
 
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
@@ -311,7 +315,8 @@ function morgan(format, options) {
         return;
       }
 
-      stream.write(line + '\n');
+      var separator = (options.prettify === true) ? '\n' : '';
+      stream.write(line + separator);
     }
 
     if (immediate) {
