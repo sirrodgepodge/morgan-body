@@ -59,12 +59,14 @@ function bodyToString(maxBodyLength, noColors, prettify, prependStr, body) {
   } else if(isObj && Object.keys(body).length > 0) {
     finalStr += noColors ? prependStr + ' Body:' : '\x1b[95m' + prependStr + ' Body:\x1b[0m';
 
-    var stringifiedObj = JSON.stringify(body, null, prettify ? '\t' : null);
+    var jsonSeparator = prettify === true ? '\t' : null;
+    var stringifiedObj = JSON.stringify(body, null, jsonSeparator);
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
-    var separator = prettify ? '\n' : '';
+
+    var lineSeparator = prettify === true ? '\n' : '';
     stringifiedObj
       .split('\n') // split + loop needed for multi-line coloring
-      .forEach(line => { finalStr += noColors ? separator + line : '\n\x1b[97m' + line + '\x1b[0m'; });
+      .forEach(line => { finalStr += noColors ? lineSeparator + line : '\n\x1b[97m' + line + '\x1b[0m'; });
   }
   return finalStr || null; // must return "null" to avoid morgan logging blank line
 }
@@ -95,10 +97,7 @@ module.exports = function morganBody(app, options) {
   if (options.hasOwnProperty('skip')) {
     morganOptions.skip = options.skip;
   }
-
-  if (options.hasOwnProperty('prettify')) {
-    morganOptions.prettify = options.prettify;
-  }
+  morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
 
 
   if (logReqDateTime) {
@@ -254,15 +253,9 @@ var defaultBufferDuration = 1000;
  * @return {Function} middleware
  */
 
-function morgan(format, options) {
+function morgan(format, opts) {
   var fmt = format;
-  var opts = options || {};
-
-  // unnecessary since we only call this function internally
-  // if (format && typeof format === 'object') {
-  //   opts = format;
-  //   fmt = opts.format || 'default';
-  // }
+  opts = opts || {};
 
   // output on request instead of response
   var immediate = opts.immediate;
@@ -304,6 +297,7 @@ function morgan(format, options) {
     // record request start
     recordStartTime.call(req);
 
+    var lineSeparator = opts.prettify === true ? '\n' : '';
     function logRequest() {
       if (skip !== false && skip(req, res)) {
         return;
@@ -311,12 +305,11 @@ function morgan(format, options) {
 
       var line = formatLine(morgan, req, res);
 
-      if (null == line) {
+      if (line == null) { // truthy if line is null or undefined
         return;
       }
 
-      var separator = (options.prettify === true) ? '\n' : '';
-      stream.write(line + separator);
+      stream.write(line + lineSeparator);
     }
 
     if (immediate) {

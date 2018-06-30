@@ -1,6 +1,7 @@
 {
   "name": "morgan-body",
-  "version": "2.4.1",
+  "version": "2.4.2",
+  "author": "Roger Beaman <rwcbeaman@gmail.com> (https://github.com/sirrodgepodge)",
   "description": "morgan logging req, res, and body",
   "main": "index.js",
   "scripts": {
@@ -16,7 +17,6 @@
     "logging",
     "logger"
   ],
-  "author": "sirRodgePodge",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/sirrodgepodge/morgan-body/issues"
@@ -30,7 +30,8 @@
   "devDependencies": {
     "body-parser": "^1.18.2",
     "chai": "^4.1.2",
-    "mocha": "^2.5.3",
-    "supertest": "^1.1.0"
+    "mocha": "^5.2.0",
+    "supertest": "^3.1.0",
+    "universal-stream-test": "^1.0.0"
   }
 }
