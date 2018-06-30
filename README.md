@@ -32,6 +32,8 @@ morganBody(app);
 
     maxBodyLength: (default: 1000), caps the length of the console output of a single request/response to specified length,
 
+    prettify: (default: true), prettifies the JSON request/response body (may want to turn off for server logs),
+
     logReqDateTime: (default: true), setting to false disables logging request date + time,
 
     dateTimeFormat: (default: 'utc', available: ['edt', clf', 'iso', 'utc']), lets you specify dateTime format logged if "logDateTime" option is true (otherwise dateTime not logged anyways)
