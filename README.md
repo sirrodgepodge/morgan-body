@@ -48,9 +48,15 @@ morganBody(app);
 
     skip: (default: null), optionally provide function of the signature "(req, res) => <bool>" to conditionally skip logging of requests (if provided function returns true),
 
-    stream: (default: null), optionally provide a stream (or any object of the shape { write: <Function> }) to be used instead of "process.stdout" for logging to
+    stream: (default: null), optionally provide a stream (or any object of the shape { write: <Function> }) to be used instead of "process.stdout" for logging to,
+    
+    theme: (default: 'defaultTheme'), alter the color scheme of your logger with a theme, see available themes below
   }
   ```
+  ### Available Themes
+  Can be passed in as "theme" option, screenshots taken in iTerm2
+  #### defaultTheme
+  
 
 [nodei-image]: https://nodei.co/npm/morgan-body.png?downloads=true&downloadRank=true&stars=true
 [nodei-url]: https://www.npmjs.com/package/morgan-body
