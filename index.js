@@ -19,16 +19,6 @@ const purple = '\x1b[35m';
 const cyan = '\x1b[36m';
 const white = '\x1b[37m';
 
-// background colors
-const backgroundBlack = '\x1b[40m';
-const backgroundRed = '\x1b[41m';
-const backgroundGreen = '\x1b[42m';
-const backgroundYellow = '\x1b[43m';
-const backgroundBlue = '\x1b[44m';
-const backgroundPurple = '\x1b[45m';
-const backgroundCyan = '\x1b[46m';
-const backgroundWhite = '\x1b[47m';
-
 // intense colors
 const intenseBlack = '\x1b[90m';
 const intenseRed = '\x1b[91m';
@@ -55,19 +45,74 @@ function getThemeObj(themeName) {
     bodyColor: intenseWhite,
     responseTimeColor: white,
     defaultColor: unsetColor,
+    status500: red,
+    status400: yellow,
+    status300: cyan,
+    status200: green,
+    status100: white,
   };
 
-  themes.noColorsTheme = {
-    actionColor: '',
-    methodColor: '',
-    pathColor: '',
-    dateColor: '',
-    userAgentColor:'',
-    bodyActionColor: '',
-    bodyColor: '',
-    responseTimeColor: '',
-    defaultColor: ''
-  };
+  // all colors are empty strings for 'noColorsTheme'
+  themes.noColorsTheme = Object.keys(themes.defaultTheme).reduce((prev, curr) => {
+    prev[curr] = '';
+    return prev;
+  }, {});
+
+  // matches color digits in ansi string
+  var colorDigitsMatcher = /\[(\d+)m/;;
+
+  // convenience function for altering colors via algorithm
+  var skewDefaults = func =>
+    Object.keys(themes.defaultTheme).reduce((prev, curr) => {
+      const currentThemeColor = themes.defaultTheme[curr];
+      const [, ansiNumbers] = colorDigitsMatcher.exec(currentThemeColor);
+      if (ansiNumbers.length === 1) { // don't want to mess with unsetString
+        prev[curr] = currentThemeColor;
+      } else {
+        const [typeNumber, colorNumber] = ansiNumbers.split('');
+        prev[curr] = `\x1b[${func({typeNumber: +typeNumber, colorNumber: +colorNumber})}m`;
+      }
+      return prev;
+    }, {});
+
+  // reverse all colors
+  themes.inverted = skewDefaults(({ typeNumber, colorNumber }) => `${typeNumber}${7 - colorNumber}`);
+
+  // no "intense colors"
+  themes.dimmed = skewDefaults(({ colorNumber }) => `3${colorNumber}`);
+
+  // darken all colors other than black by one
+  themes.darkened = skewDefaults(({ typeNumber, colorNumber }) => `${typeNumber}${colorNumber > 0 ? colorNumber - 1 : 0}`);
+
+  function getClosestInList(list, startingVal) {
+    const distanceObj = list.reduce((minDistanceObj, curr) => {
+      const distance = Math.abs(curr - startingVal);
+      return distance < minDistanceObj.distance ? { val: curr, distance: distance } : minDistanceObj
+    }, { val: white , distance: Infinity});
+    return distanceObj.val;
+  }
+
+  // round to either red, white, or black, all intense
+  themes.dracula = skewDefaults(({ typeNumber, colorNumber }) => {
+    const black = 0;
+    const red = 1;
+    const white = 7;
+
+    const closestVal = getClosestInList([black, red, white], colorNumber);
+
+    return `${closestVal === red ? 3 : 9}${closestVal}`
+  });
+
+  // round to either red, white, or black, all intense
+  themes.usa = skewDefaults(({ typeNumber, colorNumber }) => {
+    const red = 1;
+    const blue = 4;
+    const white = 7;
+
+    const selectedVal = colorNumber === 6 ? red : getClosestInList([red, blue, white], colorNumber);
+
+    return `${selectedVal === red ? 3 : 9}${selectedVal}`
+  });
 
   return themes[themeName];
 }
@@ -158,6 +203,10 @@ module.exports = function morganBody(app, options) {
   }
 
   var themeObj = getThemeObj(theme);
+  if (!themeObj) {
+    console.log(`\n\nWARNING: provided theme does not match existing themes, value passed was: ${theme}, falling back to default theme\n\n`);
+    themeObj = getThemeObj('defaultTheme');
+  }
   var defaultColor = themeObj.defaultColor;
   var actionColor = themeObj.actionColor;
   var methodColor = themeObj.methodColor;
@@ -167,11 +216,11 @@ module.exports = function morganBody(app, options) {
   var bodyActionColor = themeObj.bodyActionColor;
   var bodyColor = themeObj.bodyColor;
   var responseTimeColor = themeObj.responseTimeColor;
-
-  if (!themeObj) {
-    console.log(`\n\nWARNING: provided theme does not match existing themes, value passed was: ${theme}, falling back to default theme\n\n`);
-    themeObj = getThemeObj('defaultTheme');
-  }
+  var status500 = themeObj.status500;
+  var status400 = themeObj.status400;
+  var status300 = themeObj.status300;
+  var status200 = themeObj.status200;
+  var status100 = themeObj.status100;
 
   // handling of native morgan options
   var morganOptions = {};
@@ -282,11 +331,11 @@ module.exports = function morganBody(app, options) {
 
     // get status color
     var statusColor = theme === 'noColorsTheme' ? defaultColor
-      : status >= 500 ? red
-      : status >= 400 ? yellow
-      : status >= 300 ? cyan
-      : status >= 200 ? green
-      : status >= 100 ? white
+      : status >= 500 ? status500
+      : status >= 400 ? status400
+      : status >= 300 ? status300
+      : status >= 200 ? status200
+      : status >= 100 ? status100
       : defaultColor;
 
     // get cached status-colored function

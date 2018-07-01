@@ -264,4 +264,95 @@ describe('morganBody()', function () {
       standardResponseLineCheck(resStr);
     });
   });
+
+  describe('theme tests', () => {
+    const getBodyStr = colorNumberStr => `\u001b[${colorNumberStr}m{\u001b[0m
+\u001b[${colorNumberStr}m\t"key": "value",\u001b[0m
+\u001b[${colorNumberStr}m\t"key2": "value2"\u001b[0m
+\u001b[${colorNumberStr}m}\u001b[0m
+`;
+
+    const themedRequest = theme => simulateRequestPromise({theme}, 'post', {
+      key: 'value',
+      key2: 'value2'
+    }, {
+      key: 'value',
+      key2: 'value2'
+    });
+
+    it('"inverted" theme should invert colors', function() {
+      const bodyStr = getBodyStr(90);
+
+      const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`\u001b[91mRequest: \u001b[94mPOST \u001b[90m/ \u001b[97mat \u001b[30mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[97mUser Agent: node-superagent/3.8.2\u001b[0m\n`),
+        line => expect(line).to.equal(`\u001b[92mRequest Body:\u001b[0m\n` + bodyStr),
+        line => expect(line).to.equal(`\u001b[92mResponse Body:\u001b[0m\n` + bodyStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[91mResponse: \u001b[35m200 \u001b[30m0.000 ms - -\u001b[0m\n`)
+      );
+
+      themedRequest('inverted');
+
+      return consoleTestPromise;
+    });
+
+    it('"dimmed" theme should have no intense colors', function() {
+      const bodyStr = getBodyStr(37);
+
+      const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`\u001b[36mRequest: \u001b[33mPOST \u001b[37m/ \u001b[30mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[30mUser Agent: node-superagent/3.8.2\u001b[0m\n`),
+        line => expect(line).to.equal(`\u001b[35mRequest Body:\u001b[0m\n` + bodyStr),
+        line => expect(line).to.equal(`\u001b[35mResponse Body:\u001b[0m\n` + bodyStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[36mResponse: \u001b[32m200 \u001b[37m0.000 ms - -\u001b[0m\n`)
+      );
+
+      themedRequest('dimmed');
+
+      return consoleTestPromise;
+    });
+
+    it('"darkened" theme should push all colors up by one unless black', function() {
+      const bodyStr = getBodyStr(96);
+
+      const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`\u001b[95mRequest: \u001b[92mPOST \u001b[96m/ \u001b[90mat \u001b[36mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mUser Agent: node-superagent/3.8.2\u001b[0m\n`),
+        line => expect(line).to.equal(`\u001b[94mRequest Body:\u001b[0m\n` + bodyStr),
+        line => expect(line).to.equal(`\u001b[94mResponse Body:\u001b[0m\n` + bodyStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[95mResponse: \u001b[31m200 \u001b[36m0.000 ms - -\u001b[0m\n`)
+      );
+
+      themedRequest('darkened');
+
+      return consoleTestPromise;
+    });
+
+    it('"dracula" theme should be dracula-ish', function() {
+      const bodyStr = getBodyStr(97);
+
+      const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`\u001b[97mRequest: \u001b[31mPOST \u001b[97m/ \u001b[90mat \u001b[97mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mUser Agent: node-superagent/3.8.2\u001b[0m\n`),
+        line => expect(line).to.equal(`\u001b[97mRequest Body:\u001b[0m\n` + bodyStr),
+        line => expect(line).to.equal(`\u001b[97mResponse Body:\u001b[0m\n` + bodyStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[97mResponse: \u001b[31m200 \u001b[97m0.000 ms - -\u001b[0m\n`)
+      );
+
+      themedRequest('dracula');
+
+      return consoleTestPromise;
+    });
+
+    it('"usa" theme should be dracula-ish', function() {
+      const bodyStr = getBodyStr(97);
+
+      const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`\u001b[31mRequest: \u001b[94mPOST \u001b[97m/ \u001b[31mat \u001b[97mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[31mUser Agent: node-superagent/3.8.2\u001b[0m\n`),
+        line => expect(line).to.equal(`\u001b[94mRequest Body:\u001b[0m\n` + bodyStr),
+        line => expect(line).to.equal(`\u001b[94mResponse Body:\u001b[0m\n` + bodyStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[31mResponse: \u001b[31m200 \u001b[97m0.000 ms - -\u001b[0m\n`)
+      );
+
+      themedRequest('usa');
+
+      return consoleTestPromise;
+    });
+  })
 });
