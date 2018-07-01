@@ -84,6 +84,9 @@ function getThemeObj(themeName) {
   // darken all colors other than black by one
   themes.darkened = skewDefaults(({ typeNumber, colorNumber }) => `${typeNumber}${colorNumber > 0 ? colorNumber - 1 : 0}`);
 
+  // lighten all colors other than white by one
+  themes.lightened = skewDefaults(({ typeNumber, colorNumber }) => `${typeNumber}${colorNumber < 7 ? colorNumber + 1 : 7}`);
+
   function getClosestInList(list, startingVal) {
     const distanceObj = list.reduce((minDistanceObj, curr) => {
       const distance = Math.abs(curr - startingVal);
@@ -93,7 +96,7 @@ function getThemeObj(themeName) {
   }
 
   // round to either red, white, or black, all intense
-  themes.dracula = skewDefaults(({ typeNumber, colorNumber }) => {
+  themes.dracula = skewDefaults(({ colorNumber }) => {
     const black = 0;
     const red = 1;
     const white = 7;
@@ -104,7 +107,7 @@ function getThemeObj(themeName) {
   });
 
   // round to either red, white, or black, all intense
-  themes.usa = skewDefaults(({ typeNumber, colorNumber }) => {
+  themes.usa = skewDefaults(({ colorNumber }) => {
     const red = 1;
     const blue = 4;
     const white = 7;

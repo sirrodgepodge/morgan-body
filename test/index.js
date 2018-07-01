@@ -310,7 +310,7 @@ describe('morganBody()', function () {
       return consoleTestPromise;
     });
 
-    it('"darkened" theme should push all colors up by one unless black', function() {
+    it('"darkened" theme should push all colors down by one unless black', function() {
       const bodyStr = getBodyStr(96);
 
       const consoleTestPromise = consoleTest(
@@ -321,6 +321,21 @@ describe('morganBody()', function () {
       );
 
       themedRequest('darkened');
+
+      return consoleTestPromise;
+    });
+
+    it('"lightened" theme should push all colors up by one unless black', function() {
+      const bodyStr = getBodyStr(97);
+
+      const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`\u001b[97mRequest: \u001b[94mPOST \u001b[97m/ \u001b[91mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[91mUser Agent: node-superagent/3.8.2\u001b[0m\n`),
+        line => expect(line).to.equal(`\u001b[96mRequest Body:\u001b[0m\n` + bodyStr),
+        line => expect(line).to.equal(`\u001b[96mResponse Body:\u001b[0m\n` + bodyStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[97mResponse: \u001b[33m200 \u001b[37m0.000 ms - -\u001b[0m\n`)
+      );
+
+      themedRequest('lightened');
 
       return consoleTestPromise;
     });
