@@ -355,7 +355,7 @@ describe('morganBody()', function () {
       return consoleTestPromise;
     });
 
-    it('"usa" theme should be dracula-ish', function() {
+    it('"usa" theme should be usa colors', function() {
       const bodyStr = getBodyStr(97);
 
       const consoleTestPromise = consoleTest(
