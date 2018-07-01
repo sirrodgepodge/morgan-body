@@ -6,6 +6,72 @@ const moment = require('moment-timezone');
 morgan.format = format;
 morgan.token = token;
 
+// this character resets current logging color to default
+const unsetColor = '\x1b[0m';
+
+// text colors
+const black = '\x1b[30m';
+const red = '\x1b[31m';
+const green = '\x1b[32m';
+const yellow = '\x1b[33m';
+const blue = '\x1b[34m';
+const purple = '\x1b[35m';
+const cyan = '\x1b[36m';
+const white = '\x1b[37m';
+
+// background colors
+const backgroundBlack = '\x1b[40m';
+const backgroundRed = '\x1b[41m';
+const backgroundGreen = '\x1b[42m';
+const backgroundYellow = '\x1b[43m';
+const backgroundBlue = '\x1b[44m';
+const backgroundPurple = '\x1b[45m';
+const backgroundCyan = '\x1b[46m';
+const backgroundWhite = '\x1b[47m';
+
+// intense colors
+const intenseBlack = '\x1b[90m';
+const intenseRed = '\x1b[91m';
+const intenseGreen = '\x1b[92m';
+const intenseYellow = '\x1b[93m';
+const intenseBlue = '\x1b[94m';
+const intensePurple = '\x1b[95m';
+const intenseCyan = '\x1b[96m';
+const intenseWhite = '\x1b[97m';
+
+// creating this in function to avoid holding unnecessary variables in-memory
+function getThemeObj(themeName) {
+  themeName = themeName || 'defaultTheme';
+
+  const themes = {};
+
+  themes.defaultTheme = {
+    actionColor: intenseCyan,
+    methodColor: intenseYellow,
+    pathColor: intenseWhite,
+    dateColor: white,
+    userAgentColor: intenseBlack,
+    bodyActionColor: intensePurple,
+    bodyColor: intenseWhite,
+    responseTimeColor: white,
+    defaultColor: unsetColor,
+  };
+
+  themes.noColorsTheme = {
+    actionColor: '',
+    methodColor: '',
+    pathColor: '',
+    dateColor: '',
+    userAgentColor:'',
+    bodyActionColor: '',
+    bodyColor: '',
+    responseTimeColor: '',
+    defaultColor: ''
+  };
+
+  return themes[themeName];
+}
+
 // allow for multiple loggers in app
 let morganBodyUseCounter = 0;
 
@@ -17,9 +83,7 @@ function shallowClone(obj) {
   return newObj;
 }
 
-const ansiRegex = /\x1b.*?[mGKH]/g;
-
-function bodyToString(maxBodyLength, noColors, prettify, prependStr, body) {
+function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor, bodyColor, defaultColor) {
   if (!body) {
     return null; // must return "null" to avoid morgan logging blank line
   }
@@ -52,12 +116,12 @@ function bodyToString(maxBodyLength, noColors, prettify, prependStr, body) {
   }
 
   if (isString && body.length) {
-    finalStr += noColors ? prependStr + ' Body:' : '\x1b[95m' + prependStr + ' Body:\x1b[0m';
+    finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor + '\n';
 
     if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
-    finalStr += noColors ? body.slice(0, maxBodyLength) : '\x1b[97m' + body.slice(0, maxBodyLength) + '\x1b[0m';
+    finalStr += bodyColor + body.slice(0, maxBodyLength) + defaultColor;
   } else if(isObj && Object.keys(body).length > 0) {
-    finalStr += noColors ? prependStr + ' Body:' : '\x1b[95m' + prependStr + ' Body:\x1b[0m';
+    finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor;
 
     var jsonSeparator = prettify === true ? '\t' : null;
     var stringifiedObj = JSON.stringify(body, null, jsonSeparator);
@@ -66,7 +130,7 @@ function bodyToString(maxBodyLength, noColors, prettify, prependStr, body) {
     var lineSeparator = prettify === true ? '\n' : '';
     stringifiedObj
       .split('\n') // split + loop needed for multi-line coloring
-      .forEach(line => { finalStr += noColors ? lineSeparator + line : '\n\x1b[97m' + line + '\x1b[0m'; });
+      .forEach(function logEachBodyLine(line) { finalStr += lineSeparator + bodyColor + line + defaultColor; });
   }
   return finalStr || null; // must return "null" to avoid morgan logging blank line
 }
@@ -82,6 +146,32 @@ module.exports = function morganBody(app, options) {
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
+
+  var theme;
+  if (noColors) {
+    if (options.hasOwnProperty('theme')) {
+      console.log(`\n\nWARNING: provided theme when 'noColor' option was set to true, theme provided: ${theme}, theme will be ignored\n\n`);
+    }
+    theme = 'noColorsTheme';
+  } else {
+    theme = options.hasOwnProperty('theme') ? options.theme : 'defaultTheme';
+  }
+
+  var themeObj = getThemeObj(theme);
+  var defaultColor = themeObj.defaultColor;
+  var actionColor = themeObj.actionColor;
+  var methodColor = themeObj.methodColor;
+  var pathColor = themeObj.pathColor;
+  var dateColor = themeObj.dateColor;
+  var userAgentColor = themeObj.userAgentColor;
+  var bodyActionColor = themeObj.bodyActionColor;
+  var bodyColor = themeObj.bodyColor;
+  var responseTimeColor = themeObj.responseTimeColor;
+
+  if (!themeObj) {
+    console.log(`\n\nWARNING: provided theme does not match existing themes, value passed was: ${theme}, falling back to default theme\n\n`);
+    themeObj = getThemeObj('defaultTheme');
+  }
 
   // handling of native morgan options
   var morganOptions = {};
@@ -140,12 +230,11 @@ module.exports = function morganBody(app, options) {
     var fn = developmentFormatLine.func;
     if (!fn) {
       // compile and memoize
-      var formatString = '\x1b[96mRequest: \x1b[93m:method \x1b[97m:url';
-      if (logReqDateTime) formatString += ' \x1b[90mat \x1b[37m:date';
+      var formatString = actionColor + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
+      if (logReqDateTime) formatString += ' ' + userAgentColor + 'at ' + dateColor + ':date';
       if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
       if (logReqDateTime && logReqUserAgent) formatString += ',';
-      if (logReqUserAgent) formatString += ' \x1b[90mUser Agent: :user-agent\x1b[0m';
-      if (noColors) formatString = formatString.replace(ansiRegex, '');
+      if (logReqUserAgent) formatString += ' ' + userAgentColor + 'User Agent: :user-agent' + defaultColor;
       fn = developmentFormatLine.func = compile(formatString);
     }
 
@@ -161,7 +250,7 @@ module.exports = function morganBody(app, options) {
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
-        return bodyToString(maxBodyLength, noColors, prettify, prependStr, getBodyFunc(req, res));
+        return bodyToString(maxBodyLength, prettify, prependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor);
       });
       return bodyFormatName;
     }
@@ -192,21 +281,21 @@ module.exports = function morganBody(app, options) {
       : undefined;
 
     // get status color
-    var color = status >= 500 ? 31 // red
-      : status >= 400 ? 33 // yellow
-      : status >= 300 ? 36 // cyan
-      : status >= 200 ? 32 // green
-      : 0; // no color
+    var statusColor = theme === 'noColorsTheme' ? defaultColor
+      : status >= 500 ? red
+      : status >= 400 ? yellow
+      : status >= 300 ? cyan
+      : status >= 200 ? green
+      : status >= 100 ? white
+      : defaultColor;
 
-    // get colored function
-    var fn = developmentFormatLine[color];
+    // get cached status-colored function
+    var fn = developmentFormatLine[statusColor];
 
     if (!fn) {
       // compile
-      var responseStr = '\x1b[96mResponse: \x1b['
-        + color + 'm:status \x1b[0m:response-time ms - :res[content-length]\x1b[0m';
-      if (noColors) responseStr = responseStr.replace(ansiRegex, '');
-      fn = developmentFormatLine[color] = compile(responseStr);
+      var responseStr = actionColor + 'Response:' + ' ' + statusColor + ':status ' + responseTimeColor + ':response-time ms - :res[content-length]' + defaultColor;
+      fn = developmentFormatLine[statusColor] = compile(responseStr);
     }
 
     return fn(tokens, req, res);
@@ -214,10 +303,6 @@ module.exports = function morganBody(app, options) {
 
   app.use(morgan(morganResFormatName, morganOptions));
 };
-
-// module.exports = morgan;
-// module.exports.format = format;
-// module.exports.token = token;
 
 /**
  * Module dependencies.

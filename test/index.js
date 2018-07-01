@@ -14,7 +14,7 @@ function standardPostRequestLineCheck(line) {
 }
 
 function standardResponseLineCheck(line) {
-  expect(forceResponseTimeToZero(line)).to.equal(`\u001b[96mResponse: \u001b[32m200 \u001b[0m0.000 ms - -\u001b[0m\n`);
+  expect(forceResponseTimeToZero(line)).to.equal(`\u001b[96mResponse: \u001b[32m200 \u001b[37m0.000 ms - -\u001b[0m\n`);
 }
 
 function forceResponseTimeToZero(resStr) {
