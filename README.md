@@ -1,7 +1,10 @@
 # morgan-body
 
-Logging the way you always wanted it to be! <br />
-Nicely colorized logging that includes Request and Response bodies.
+So frequently in Dexter and the "morgan" library, we are left wondering, where's the body?
+
+We've found it! (for "morgan" library, not show :P)
+Here is logging the way you always wanted it to be! <br />
+Nicely colorized logging that includes Request and Response bodies. 
 
 [![NPM][nodei-image]][nodei-url]
 
