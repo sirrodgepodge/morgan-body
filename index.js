@@ -188,6 +188,10 @@ module.exports = function morganBody(app, options) {
   options = options || {};
   var maxBodyLength = options.hasOwnProperty('maxBodyLength') ? options.maxBodyLength : 1000;
   var logReqDateTime = options.hasOwnProperty('logReqDateTime') ? options.logReqDateTime : true;
+  var logAllReqHeader = options.hasOwnProperty('logAllReqHeader') ? options.logAllReqHeader : false;
+  var logAllResHeader = options.hasOwnProperty('logAllResHeader') ? options.logAllResHeader : false;
+  var logReqHeaderList = options.hasOwnProperty('logReqHeaderList') ? options.logReqHeaderList : null;
+  var logResHeaderList = options.hasOwnProperty('logResHeaderList') ? options.logResHeaderList : null;
   var logReqUserAgent = options.hasOwnProperty('logReqUserAgent') ? options.logReqUserAgent : true;
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
@@ -282,7 +286,18 @@ module.exports = function morganBody(app, options) {
     var fn = developmentFormatLine.func;
     if (!fn) {
       // compile and memoize
-      var formatString = actionColor + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
+      var formatString = actionColor + '[:id] ' + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
+      if (logAllReqHeader) {
+        formatString += ' headers[:request-headers]';
+      } else {
+        if (logReqHeaderList && logReqHeaderList.length > 0) {
+          formatString += ' headers[';
+          for (var i = 0; i < logReqHeaderList.length; i++) {
+            formatString += `${logReqHeaderList[i]}=:req[${logReqHeaderList[i]}];`;
+          }
+          formatString += ']';
+        }
+      }
       if (logReqDateTime) formatString += ' ' + userAgentColor + 'at ' + dateColor + ':date';
       if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
       if (logReqDateTime && logReqUserAgent) formatString += ',';
@@ -302,7 +317,8 @@ module.exports = function morganBody(app, options) {
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
-        return bodyToString(maxBodyLength, prettify, prependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor);
+        const exPrependStr = '[' + getIDToken(req) + '] ' + prependStr;
+        return bodyToString(maxBodyLength, prettify, exPrependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor);
       });
       return bodyFormatName;
     }
@@ -346,15 +362,27 @@ module.exports = function morganBody(app, options) {
 
     if (!fn) {
       // compile
-      var responseStr = actionColor + 'Response:' + ' ' + statusColor + ':status ' + responseTimeColor + ':response-time ms - :res[content-length]' + defaultColor;
-      fn = developmentFormatLine[statusColor] = compile(responseStr);
+      var formatString = actionColor + '[:id] ' + 'Response:' + ' ' + statusColor + ':status ' + responseTimeColor + ':response-time ms ';
+      if (logAllResHeader) {
+        formatString += ' headers[:response-headers]' + defaultColor;
+      } else {
+        if (logResHeaderList && logResHeaderList.length > 0) {
+          formatString += ' headers[';
+          for (var i = 0; i < logResHeaderList.length; i++) {
+            formatString += `${logResHeaderList[i]}=:res[${logResHeaderList[i]}];`;
+          }
+          formatString += ']' + defaultColor;
+        }
+      }
+
+      fn = developmentFormatLine[statusColor] = compile(formatString);
     }
 
     return fn(tokens, req, res);
   });
 
   app.use(morgan(morganResFormatName, morganOptions));
-};
+}
 
 /**
  * Module dependencies.
@@ -476,8 +504,24 @@ morgan.token('url', function getUrlToken(req) {
  * request method
  */
 
+function getIDToken(req) {
+  return req.id;
+};
+
+morgan.token('id', function getToken(req) {
+  return getIDToken(req);
+});
+
 morgan.token('method', function getMethodToken(req) {
   return req.method;
+});
+
+morgan.token('request-headers', function getRequestHeadersToken(req) {
+  return JSON.stringify(req.headers);
+});
+
+morgan.token('response-headers', function getResponseHeadersToken(req, res) {
+  JSON.stringify(res.getHeaders());
 });
 
 /**
