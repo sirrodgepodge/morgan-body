@@ -2,7 +2,7 @@
 
 So frequently in Dexter and the "morgan" library, we are left wondering, where's the body?
 
-Well, we've found it! <br> <i>(for "morgan" library, not show :P)</i>
+Well, we've found it! <br> <i>(for "morgan" library, not the show :P)</i>
 
 Here is logging the way you always wanted it to be! <br />
 Nicely colorized logging that includes Request and Response bodies. 
