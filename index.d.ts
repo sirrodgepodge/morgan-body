@@ -1,0 +1,29 @@
+declare module "morgan-body";
+
+declare module "morgan-body" {
+  import express from "express";
+  import * as stream from "stream";
+
+  type DateTimeFormatType = "edt" | "clf" | "iso" | "utc";
+  type FilterFunctionType = (request: express.Request, response: express.Response) => boolean;
+  type StreamLikeType = stream.Writable | { write: stream.Writable["write"] };
+  type ThemeType = "defaultTheme" | "dracula" | "usa" | "inverted" | "darkened" | "lightened" | "dimmed";
+
+  interface IMorganBodyOptions {
+    noColors?: boolean;
+    maxBodyLength?: number;
+    prettify?: boolean;
+    logReqDateTime?: boolean;
+    dateTimeFormat?: DateTimeFormatType;
+    timezone?: string;
+    logReqUserAgent?: boolean;
+    logRequestBody?: boolean;
+    logResponseBody?: boolean;
+    skip?: FilterFunctionType | null;
+    stream?: StreamLikeType | null;
+    theme?: ThemeType;
+  }
+
+  export default function morganBody(app: express.Application, options?: IMorganBodyOptions): void;
+}
+
