@@ -7,6 +7,8 @@ Well, we've found it! <br> <i>(for "morgan" library, not the show :P)</i>
 Here is logging the way you always wanted it to be! <br />
 Nicely colorized logging that includes Request and Response bodies. 
 
+(Now with Typescript support thanks to @francisbrito)
+
 [![NPM][nodei-image]][nodei-url]
 
 ## Example Use
