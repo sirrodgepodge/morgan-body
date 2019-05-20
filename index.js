@@ -516,12 +516,19 @@ morgan.token('method', function getMethodToken(req) {
   return req.method;
 });
 
+function formattedHeaderStringify(headersObj) {
+  return Object.keys(headersObj).reduce((accum, key) => {
+    const value = headersObj[key];
+    return `${accum}${accum.length === 0 ? "" : ";"}${key}=${value}`;
+  }, "");
+}
+
 morgan.token('request-headers', function getRequestHeadersToken(req) {
-  return JSON.stringify(req.headers);
+  return formattedHeaderStringify(req.headers);
 });
 
 morgan.token('response-headers', function getResponseHeadersToken(req, res) {
-  JSON.stringify(res.getHeaders());
+  return formattedHeaderStringify(res.getHeaders());
 });
 
 /**
