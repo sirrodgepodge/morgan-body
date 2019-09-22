@@ -1,7 +1,7 @@
 declare module "morgan-body";
 
 declare module "morgan-body" {
-  import express from "express";
+  import * as express from "express";
   import * as stream from "stream";
 
   type DateTimeFormatType = "edt" | "clf" | "iso" | "utc";
