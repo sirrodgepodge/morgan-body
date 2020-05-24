@@ -317,7 +317,8 @@ module.exports = function morganBody(app, options) {
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
-        const exPrependStr = '[' + getIDToken(req) + '] ' + prependStr;
+        const IDToken = getIDToken(req);
+        const exPrependStr = '[' + (IDToken === undefined ? '-' : IDToken) + '] ' + prependStr;
         return bodyToString(maxBodyLength, prettify, exPrependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor);
       });
       return bodyFormatName;
