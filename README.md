@@ -50,7 +50,15 @@ morganBody(app);
 
     logRequestBody: (default: true), setting to false disables logging request body,
 
+    logReqHeaderList: (default: false), takes in a list of request headers to be displayed in the log.
+
+    logAllReqHeader: (default: false), true will log All request headers and take precedence over logReqHeaderList; false otherwise.
+
     logResponseBody: (default: true), setting to false disables logging response body,
+
+    logResHeaderList: (default: false), takes in a list of response headers to be displayed in the log.
+
+    logAllResHeader: (default: false), true will log All response headers and take precedence over logResHeaderList; false otherwise.
 
     skip: (default: null), optionally provide function of the signature "(req, res) => <bool>" to conditionally skip logging of requests (if provided function returns true),
 
