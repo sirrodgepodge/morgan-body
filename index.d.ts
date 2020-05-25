@@ -18,7 +18,11 @@ declare module "morgan-body" {
     timezone?: string;
     logReqUserAgent?: boolean;
     logRequestBody?: boolean;
+    logReqHeaderList?: boolean;
+    logAllReqHeader?: boolean;
     logResponseBody?: boolean;
+    logResHeaderList?: boolean;
+    logAllResHeader?: boolean;
     skip?: FilterFunctionType | null;
     stream?: StreamLikeType | null;
     theme?: ThemeType;
