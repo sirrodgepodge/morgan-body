@@ -265,6 +265,31 @@ describe('morganBody()', function () {
     });
   });
 
+  it('"filterParameters" property should hide sensitive data', function () {
+    const sharedStr = `\u001b[97m{\u001b[0m
+\u001b[97m\t"key": "value",\u001b[0m
+\u001b[97m\t"password": "[FILTERED]"\u001b[0m
+\u001b[97m}\u001b[0m
+`;
+
+    const consoleTestPromise = consoleTest(
+      standardPostRequestLineCheck,
+      line => expect(line).to.equal(`\u001b[95m[-] Request Body:\u001b[0m\n` + sharedStr),
+      line => expect(line).to.equal(`\u001b[95m[-] Response Body:\u001b[0m\n` + sharedStr),
+      standardResponseLineCheck
+    );
+
+    simulateRequestPromise({filterParameters: ['password'] }, 'post', {
+      key: 'value',
+      password: 'SuperSecretPassword'
+    }, {
+      key: 'value',
+      password: 'SuperSecretPassword'
+    });
+
+    return consoleTestPromise;
+  });
+
   describe('theme tests', () => {
     const getBodyStr = colorNumberStr => `\u001b[${colorNumberStr}m{\u001b[0m
 \u001b[${colorNumberStr}m\t"key": "value",\u001b[0m
