@@ -26,6 +26,7 @@ declare module "morgan-body" {
     skip?: FilterFunctionType | null;
     stream?: StreamLikeType | null;
     theme?: ThemeType;
+    filterParameters?: string[];
   }
 
   export default function morganBody(app: express.Application, options?: IMorganBodyOptions): void;

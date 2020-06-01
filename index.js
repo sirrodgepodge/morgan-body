@@ -131,7 +131,7 @@ function shallowClone(obj) {
   return newObj;
 }
 
-function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor, bodyColor, defaultColor) {
+function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor, bodyColor, defaultColor, filterParameters) {
   if (!body) {
     return null; // must return "null" to avoid morgan logging blank line
   }
@@ -172,7 +172,10 @@ function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor
     finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor;
 
     var jsonSeparator = prettify === true ? '\t' : null;
-    var stringifiedObj = JSON.stringify(body, null, jsonSeparator);
+    var stringifiedObj = JSON.stringify(body, (key, value) => {
+      if (filterParameters.includes(key)) return "[FILTERED]";
+      return value;
+    }, jsonSeparator);
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
 
     var lineSeparator = prettify === true ? '\n' : '';
@@ -198,6 +201,7 @@ module.exports = function morganBody(app, options) {
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
+  var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
 
   var theme;
   if (noColors) {
@@ -319,7 +323,7 @@ module.exports = function morganBody(app, options) {
       morgan.format(bodyFormatName, function logBody(_, req, res) {
         const IDToken = getIDToken(req);
         const exPrependStr = '[' + (IDToken === undefined ? '-' : IDToken) + '] ' + prependStr;
-        return bodyToString(maxBodyLength, prettify, exPrependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor);
+        return bodyToString(maxBodyLength, prettify, exPrependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor, filterParameters);
       });
       return bodyFormatName;
     }

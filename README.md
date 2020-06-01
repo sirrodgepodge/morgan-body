@@ -65,6 +65,8 @@ morganBody(app);
     stream: (default: null), optionally provide a stream (or any object of the shape { write: <Function> }) to be used instead of "process.stdout" for logging to,
 
     theme: (default: 'defaultTheme'), alter the color scheme of your logger with a theme, see available themes below
+
+    filterParameters: (default: []), set the properties you don't want to be shown, such as passwords or credit card numbers
   }
   ```
 
