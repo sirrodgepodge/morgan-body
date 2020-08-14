@@ -179,9 +179,11 @@ function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
 
     var lineSeparator = prettify === true ? '\n' : '';
-    stringifiedObj
-      .split('\n') // split + loop needed for multi-line coloring
-      .forEach(function logEachBodyLine(line) { finalStr += lineSeparator + bodyColor + line + defaultColor; });
+    const splitOnNewLine = stringifiedObj.split('\n');
+    const splitOnNewLineLength = splitOnNewLine.length;
+    for (let i = 0; i < splitOnNewLineLength; i++) {
+      finalStr += lineSeparator + bodyColor + splitOnNewLine[i] + defaultColor;
+    }
   }
   return finalStr || null; // must return "null" to avoid morgan logging blank line
 }
@@ -198,6 +200,7 @@ module.exports = function morganBody(app, options) {
   var logReqUserAgent = options.hasOwnProperty('logReqUserAgent') ? options.logReqUserAgent : true;
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
+  var logRequestId = options.hasOwnProperty('logRequestId') ? options.logRequestId : false;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
@@ -249,6 +252,7 @@ module.exports = function morganBody(app, options) {
   }
   morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
 
+  const optionalIdInclusionStr = logRequestId ? '[:id] ' : '';
 
   if (logReqDateTime) {
     var dateTimeFormat = options.hasOwnProperty('dateTimeFormat') ? options.dateTimeFormat || '' : '';
@@ -290,7 +294,7 @@ module.exports = function morganBody(app, options) {
     var fn = developmentFormatLine.func;
     if (!fn) {
       // compile and memoize
-      var formatString = actionColor + '[:id] ' + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
+      var formatString = actionColor + optionalIdInclusionStr + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
       if (logAllReqHeader) {
         formatString += ' headers[:request-headers]';
       } else {
@@ -321,8 +325,11 @@ module.exports = function morganBody(app, options) {
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
-        const IDToken = getIDToken(req);
-        const exPrependStr = '[' + (IDToken === undefined ? '-' : IDToken) + '] ' + prependStr;
+        let exPrependStr = prependStr;
+        if (logRequestId) {
+          const IDToken = getIDToken(req);
+          exPrependStr = '[' + (IDToken === undefined ? '-' : IDToken) + '] ' + prependStr;
+        }
         return bodyToString(maxBodyLength, prettify, exPrependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor, filterParameters);
       });
       return bodyFormatName;
@@ -367,7 +374,7 @@ module.exports = function morganBody(app, options) {
 
     if (!fn) {
       // compile
-      var formatString = actionColor + '[:id] ' + 'Response:' + ' ' + statusColor + ':status ' + responseTimeColor + ':response-time ms ';
+      var formatString = actionColor + optionalIdInclusionStr + 'Response:' + ' ' + statusColor + ':status ' + responseTimeColor + ':response-time ms ';
       if (logAllResHeader) {
         formatString += ' headers[:response-headers]' + defaultColor;
       } else {

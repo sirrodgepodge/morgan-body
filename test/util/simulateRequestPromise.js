@@ -4,10 +4,10 @@ var bodyParser = require('body-parser');
 var morganBody = require('../..');
 
 
-module.exports = function simulateRequestPromise(opts, method = 'get', reqBody, resBody) {
+module.exports = function simulateRequestPromise(opts, method = 'get', reqBody, resBody, addToRequestObj = {}) {
   return new Promise((resolve, reject) => {
     try {
-      let req = request(createServer(opts, resBody));
+      let req = request(createServer(opts, resBody, addToRequestObj));
       req = req[method]('/');
       if (reqBody) req = req.send(reqBody);
       req.expect(200, resolve);
@@ -17,7 +17,7 @@ module.exports = function simulateRequestPromise(opts, method = 'get', reqBody, 
   });
 }
 
-function createServer(opts, responseObj) {
+function createServer(opts, responseObj, addToRequestObj) {
   var funcPipeline = [];
   var fakeApp = {
     use(func) {
@@ -29,6 +29,11 @@ function createServer(opts, responseObj) {
   };
 
   return http.createServer(function onRequest (req, res) {
+    // add properties to request object
+    Object.keys(addToRequestObj).forEach(key => {
+      req[key] = addToRequestObj[key];
+    });
+
     morganBody(fakeApp, opts || {});
 
     res.send = fakeApp.response.send.bind(res);

@@ -56,6 +56,8 @@ morganBody(app);
 
     logResponseBody: (default: true), setting to false disables logging response body,
 
+    logRequestId: (default: false), setting to true will log "req.id" at the beginning of each line (must be setting req.id elsewhere upstream),
+
     logResHeaderList: (default: false), takes in a list of response headers to be displayed in the log.
 
     logAllResHeader: (default: false), true will log All response headers and take precedence over logResHeaderList; false otherwise.

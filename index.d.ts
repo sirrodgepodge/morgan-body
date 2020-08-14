@@ -21,6 +21,7 @@ declare module "morgan-body" {
     logReqHeaderList?: boolean;
     logAllReqHeader?: boolean;
     logResponseBody?: boolean;
+    logRequestId?: boolean;
     logResHeaderList?: boolean;
     logAllResHeader?: boolean;
     skip?: FilterFunctionType | null;
