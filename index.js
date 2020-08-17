@@ -205,6 +205,7 @@ module.exports = function morganBody(app, options) {
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
+  var logIP = options.hasOwnProperty('logIP') ? options.logIP : true;
 
   var theme;
   if (noColors) {
@@ -250,6 +251,10 @@ module.exports = function morganBody(app, options) {
   if (options.hasOwnProperty('skip')) {
     morganOptions.skip = options.skip;
   }
+  if (options.hasOwnProperty('logIP')) {
+      morganOptions.logIP = options.logIP
+  }
+
   morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
 
   const optionalIdInclusionStr = logRequestId ? '[:id] ' : '';
@@ -309,7 +314,8 @@ module.exports = function morganBody(app, options) {
       if (logReqDateTime) formatString += ' ' + userAgentColor + 'at ' + dateColor + ':date';
       if (dateTimeFormat) formatString += `[${dateTimeFormat}]`;
       if (logReqDateTime && logReqUserAgent) formatString += ',';
-      if (logReqUserAgent) formatString += ' ' + userAgentColor + 'User Agent: :user-agent' + defaultColor;
+      if (logIP) formatString += ' ' + userAgentColor + "IP: " + dateColor + ":remote-addr" + defaultColor;
+      if (logReqUserAgent) formatString += ', ' + userAgentColor + 'User Agent: :user-agent' + defaultColor;
       fn = developmentFormatLine.func = compile(formatString);
     }
 
