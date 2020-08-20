@@ -201,11 +201,11 @@ module.exports = function morganBody(app, options) {
   var logRequestBody = options.hasOwnProperty('logRequestBody') ? options.logRequestBody : true;
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var logRequestId = options.hasOwnProperty('logRequestId') ? options.logRequestId : false;
+  var logIP = options.hasOwnProperty('logIP') ? options.logIP : true;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
-  var logIP = options.hasOwnProperty('logIP') ? options.logIP : true;
 
   var theme;
   if (noColors) {
