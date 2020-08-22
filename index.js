@@ -188,7 +188,52 @@ function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor
   return finalStr || null; // must return "null" to avoid morgan logging blank line
 }
 
-module.exports = function morganBody(app, options) {
+module.exports = function morganBody(app, transports) {
+    if (!transports) {
+      transports = [
+        {
+          transport: new ConsoleTransport(),
+          options: {
+            maxBodyLength: 1000,
+            logReqDateTime: true,
+            logAllReqHeader: false,
+            logAllResHeader: false,
+            logReqHeaderList: null,
+            logResHeaderList: null,
+            logReqUserAgent: true,
+            logRequestBody: true,
+            logResponseBody: true,
+            logRequestId: false,
+            logIP: true,
+            timezone: "local",
+            noColors: false,
+            prettify: true,
+            filterParameters: [],
+          },
+        },
+      ];
+    }
+
+    for (const t of transports) {
+        if (t.hasOwnProperty("transport")) {
+            const { transport, options } = t
+
+            if (typeof transport.write !== 'function') {
+                console.error("ERROR: One of the passed transports is missing function write()")
+            } else {
+                logger(app, {
+                    ...options,
+                    stream: transport
+                })
+            }
+        } else {
+            console.error("ERROR: One of the passed transports is missing the required property 'transport'!")
+        }
+    }
+};
+
+
+function logger(app, options) {
   // default options
   options = options || {};
   var maxBodyLength = options.hasOwnProperty('maxBodyLength') ? options.maxBodyLength : 1000;
@@ -409,6 +454,7 @@ module.exports = function morganBody(app, options) {
 
 var onFinished = require('on-finished');
 var onHeaders = require('on-headers');
+const ConsoleTransport = require('./transports/ConsoleTransport');
 
 /**
  * Array of CLF month names.
