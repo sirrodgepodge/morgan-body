@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 morganBody(app);
 ```
 
-Please make sure to register routers before you call morganBody, because otherwise they wouldn't be loggde.
+Please make sure to register routers before you call morganBody, because otherwise they wouldn't be logged
 
 <img width="657" alt="screen shot 2017-07-07 at 2 02 55 am" src="https://user-images.githubusercontent.com/7177292/27944997-74491fa6-62b8-11e7-96c8-82dbf2e6b50c.png">
 *Note: console output is colorized for iTerm2, might look odd on terminals with other background colors
@@ -36,7 +36,7 @@ Please make sure to register routers before you call morganBody, because otherwi
 
 ### Log to file
 
-In order to do that, you just need to pass a stream into the options.stream property. Example:
+In order to do that, you just need to pass a stream into the `stream` property in options. Example:
 ```js
 const log = fs.createWriteStream(
   path.join(__dirname, "logs", "express.log"), { flags: "a" }
@@ -53,7 +53,7 @@ If your log files look like this:
 
 <img width="796" src="https://user-images.githubusercontent.com/53915302/90952129-712da980-e461-11ea-90d6-8223acb2e07a.png">
 
-You just need disable the colors with the noColors property.
+You just need disable the colors with the `noColors` property in options.
 
 ### Multiple instances of MorganBody
 
