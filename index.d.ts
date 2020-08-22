@@ -36,7 +36,6 @@ declare module "morgan-body" {
     logAllResHeader?: boolean;
     logIP?: boolean;
     skip?: FilterFunctionType | null;
-    stream?: StreamLikeType | null;
     theme?: ThemeType;
     filterParameters?: string[];
   }

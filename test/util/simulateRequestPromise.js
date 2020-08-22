@@ -2,6 +2,7 @@ var http = require('http');
 var request = require('supertest');
 var bodyParser = require('body-parser');
 var morganBody = require('../..');
+const ConsoleTransport = require('../../transports/ConsoleTransport');
 
 
 module.exports = function simulateRequestPromise(opts, method = 'get', reqBody, resBody, addToRequestObj = {}) {
@@ -34,7 +35,12 @@ function createServer(opts, responseObj, addToRequestObj) {
       req[key] = addToRequestObj[key];
     });
 
-    morganBody(fakeApp, opts || {});
+    morganBody(fakeApp, [
+        {
+            transport: new ConsoleTransport(),
+            options: opts
+        }
+    ]);
 
     res.send = fakeApp.response.send.bind(res);
 
