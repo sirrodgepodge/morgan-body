@@ -104,7 +104,7 @@ const loggerStream = {
   },
 };
 
-morganBody(stream, {
+morganBody(app, {
   // .. other settings
   stream: loggerStream
 });
@@ -122,7 +122,7 @@ const loggerStream = {
   },
 };
 
-morganBody(stream, {
+morganBody(app, {
   // .. other settings
   stream: loggerStream
 });
