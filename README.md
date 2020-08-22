@@ -64,6 +64,8 @@ morganBody(app);
 
     logAllResHeader: (default: false), true will log All response headers and take precedence over logResHeaderList; false otherwise.
 
+    logMetadata: (default: false), true will log req.metadata, which can be passed through middleware; false otherwise.
+
     skip: (default: null), optionally provide function of the signature "(req, res) => <bool>" to conditionally skip logging of requests (if provided function returns true),
 
     stream: (default: null), optionally provide a stream (or any object of the shape { write: <Function> }) to be used instead of "process.stdout" for logging to,

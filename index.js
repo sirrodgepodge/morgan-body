@@ -164,12 +164,12 @@ function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor
   }
 
   if (isString && body.length) {
-    finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor + '\n';
+    finalStr += bodyActionColor + prependStr + (prependStr === 'Metadata' ? ':' : ' Body:') + defaultColor + '\n';
 
     if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
     finalStr += bodyColor + body.slice(0, maxBodyLength) + defaultColor;
   } else if(isObj && Object.keys(body).length > 0) {
-    finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor;
+    finalStr += bodyActionColor + prependStr + (prependStr === 'Metadata' ? ':' : ' Body:') + defaultColor;
 
     var jsonSeparator = prettify === true ? '\t' : null;
     var stringifiedObj = JSON.stringify(body, (key, value) => {
@@ -247,6 +247,7 @@ function logger(app, options) {
   var logResponseBody = options.hasOwnProperty('logResponseBody') ? options.logResponseBody : true;
   var logRequestId = options.hasOwnProperty('logRequestId') ? options.logRequestId : false;
   var logIP = options.hasOwnProperty('logIP') ? options.logIP : true;
+  var logMetadata = options.hasOwnProperty('logMetadata') ? options.logMetadata : false;
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
@@ -299,6 +300,9 @@ function logger(app, options) {
   if (options.hasOwnProperty('logIP')) {
       morganOptions.logIP = options.logIP
   }
+  if (options.hasOwnProperty('logMetadata')) {
+    morganOptions.logMetadata = options.logMetadata
+}
 
   morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
 
@@ -399,6 +403,10 @@ function logger(app, options) {
       };
 
       app.use(morgan(logBodyGen('Response', (req, res) => res.__morgan_body_response), morganOptions));
+    }
+
+    if (logMetadata) {
+        app.use(morgan(logBodyGen('Metadata', (req, res) => req.metadata), morganOptions));
     }
   }
 

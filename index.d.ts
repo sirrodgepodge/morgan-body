@@ -35,6 +35,7 @@ declare module "morgan-body" {
     logResHeaderList?: boolean;
     logAllResHeader?: boolean;
     logIP?: boolean;
+    logMetadata: boolean;
     skip?: FilterFunctionType | null;
     theme?: ThemeType;
     filterParameters?: string[];
