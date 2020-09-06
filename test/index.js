@@ -1,3 +1,5 @@
+require('./util/forceDateToZero'); // need to normalize dates for standardizing logs, overwrites Date, forcing all date times to zero
+
 var assert = require('assert');
 var consoleTest = require('universal-stream-test');
 var simulateRequestPromise = require('./util/simulateRequestPromise');
@@ -22,7 +24,6 @@ function forceResponseTimeToZero(resStr) {
 
 
 describe('morganBody()', function () {
-  require('./util/forceDateToZero'); // need to normalize dates for standardizing logs, overwrites Date, forcing all date times to zero
   it('should log standard request and response correctly', function () {
     const consoleTestPromise = consoleTest(
       standardRequestLineCheck,
