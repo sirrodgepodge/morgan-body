@@ -26,8 +26,108 @@ app.use(bodyParser.json());
 // hook morganBody to express app
 morganBody(app);
 ```
+
+Please make sure to register routers before you call morganBody, because otherwise they wouldn't be logged
+
 <img width="657" alt="screen shot 2017-07-07 at 2 02 55 am" src="https://user-images.githubusercontent.com/7177292/27944997-74491fa6-62b8-11e7-96c8-82dbf2e6b50c.png">
-*Note: console output is colorized for iTerm2, might look odd on terminals with other background colors
+*Note: console output is colorized for iTerm2, might look odd on terminals with other background colors, which can be solved by themes!
+
+## More Usages
+
+### Log to file
+
+In order to do that, you just need to pass a stream into the `stream` property in options. Example:
+```js
+const log = fs.createWriteStream(
+  path.join(__dirname, "logs", "express.log"), { flags: "a" }
+);
+
+morganBody(app, {
+  // .. other settings
+  noColors: true,
+  stream: log,
+});
+```
+
+If your log files look like this:
+
+<img width="796" src="https://user-images.githubusercontent.com/53915302/90952129-712da980-e461-11ea-90d6-8223acb2e07a.png">
+
+You just need disable the colors with the `noColors` property in options.
+
+### Multiple instances of MorganBody
+
+If you want to use morganBody to log on multiple places, it can be done by just calling the function multiple times. As shown in the previous example,
+you can log to write streams. But what if you want to log to console as well? Easy.
+```js
+// ... express
+
+const log = fs.createWriteStream(
+  path.join(__dirname, "logs", "express.log"), { flags: "a" }
+);
+
+morganBody(app, {
+  // .. other settings
+});
+
+morganBody(app, {
+  // .. other settings
+  noColors: true,
+  stream: log,
+});
+```
+
+### Using different loggers
+
+What if you use a different logging library to log all your important information about what's happening with your application?
+You can use MorganBody with it as well!
+
+Example with winston:
+```js
+import winston from 'winston'
+
+// ... express
+
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      format: format.combine(format.timestamp(), loggerFormat),
+      filename: path.join(__dirname, "../", "logs", "combined.log"),
+    }),
+  ],
+});
+
+const loggerStream = {
+  write: message => {
+    logger.info(message);
+  },
+};
+
+morganBody(app, {
+  // .. other settings
+  stream: loggerStream
+});
+
+```
+
+### Execute code X on write 
+
+As you could've seen in the winston example, we don't even have a WriteStream here! 
+You can just create an object with a write function inside it,and do whatever you want inside it!
+```js
+const loggerStream = {
+  write: message => {
+    // do anything - emit to websocket? send message somewhere? log to cloud?
+  },
+};
+
+morganBody(app, {
+  // .. other settings
+  stream: loggerStream
+});
+```
+
 
 ## API
 ### morganBody(\<express instance>, \<options object>)
@@ -37,6 +137,7 @@ morganBody(app);
     noColors: (default: false), gets rid of colors in logs, while they're awesome, they don't look so good in log files as @rserentill pointed out
 
     maxBodyLength: (default: 1000), caps the length of the console output of a single request/response to specified length,
+
 
     prettify: (default: true), prettifies the JSON request/response body (may want to turn off for server logs),
 
