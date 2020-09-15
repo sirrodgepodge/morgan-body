@@ -1,8 +1,8 @@
 var http = require('http');
 var request = require('supertest');
 var bodyParser = require('body-parser');
-var morganBody = require('../..');
-const ConsoleTransport = require('../../transports/ConsoleTransport');
+var morganBody = require('../../src');
+const ConsoleTransport = require('../../src/transports/ConsoleTransport');
 
 
 module.exports = function simulateRequestPromise(opts, method = 'get', reqBody, resBody, addToRequestObj = {}) {

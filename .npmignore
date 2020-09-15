@@ -4,3 +4,5 @@
 ## the stuff we want in npm
 !index.js
 !index.d.ts
+!/dist
+!dist
