@@ -9,30 +9,37 @@
 /**
  * Main Class
  */
-import MorganBody, { ConstructorTransport } from "./MorganBody";
+import MorganBody from "./MorganBody"
 
 /**
  * Interfaces
  */
-import ITransport from "./interfaces/ITransport";
+import ITransport from "./interfaces/ITransport"
+import IDriver from "./interfaces/IDriver"
+
+/**
+ * Drivers
+ */
+import ExpressDriver from "./drivers/ExpressDriver"
+import FastifyDriver from "./drivers/FastifyDriver"
 
 /**
  * Transports
  */
-import ConsoleTransport from "./transports/ConsoleTransport";
-import FileTransport from "./transports/FileTransport";
-import StreamTransport from "./transports/StreamTransport";
+import ConsoleTransport from "./transports/ConsoleTransport"
+import FileTransport from "./transports/FileTransport"
+import StreamTransport from "./transports/StreamTransport"
 
 /**
  * Enums
  */
-import EColor from "./enums/EColor";
-import ETheme from "./enums/ETheme";
+import EColor from "./enums/EColor"
+import ETheme from "./enums/ETheme"
 
 /**
  * Utils
  */
-import ThemeUtils from "./utils/ThemeUtils";
+import ThemeUtils from "./utils/ThemeUtils"
 
 /**
  * Types
@@ -42,17 +49,21 @@ import {
   FilterFunctionType,
   StreamLikeType,
   ThemeType,
-} from "./types/MiscTypes";
+  Themes,
+  MiddlewareFunc,
+} from "./types/MiscTypes"
 
-export default MorganBody;
+export default MorganBody
 
 export {
   MorganBody,
-  ConstructorTransport,
   ITransport,
+  IDriver,
   ConsoleTransport,
   FileTransport,
   StreamTransport,
+  ExpressDriver,
+  FastifyDriver,
   EColor,
   ETheme,
   ThemeUtils,
@@ -60,4 +71,6 @@ export {
   FilterFunctionType,
   StreamLikeType,
   ThemeType,
-};
+  Themes,
+  MiddlewareFunc,
+}

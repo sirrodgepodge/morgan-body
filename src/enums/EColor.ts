@@ -20,4 +20,4 @@ enum EColor {
   UNSET = "\x1b[0m",
 }
 
-export default EColor;
+export default EColor

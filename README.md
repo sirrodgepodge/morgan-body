@@ -11,6 +11,7 @@ Three main goals of v3:
 
 - ~~Implement transports~~
 - Complete codebase transfer to TypeScript
+- Write new tests (possibly replace mocha with jest?)
 - Cleanup some old code
 - Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)
 - Create new name, as `morgan-body` will become misleading

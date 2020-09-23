@@ -6,7 +6,7 @@ enum ETheme {
   DARKENED = "darkened",
   LIGHTENED = "lightened",
   DIMMED = "dimmed",
-  NO_COLORS = "noColorsTheme"
+  NO_COLORS = "noColorsTheme",
 }
 
-export default ETheme;
+export default ETheme

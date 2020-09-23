@@ -1,5 +1,5 @@
-import StreamTransport from "./StreamTransport";
-import fs from "fs";
+import StreamTransport from "./StreamTransport"
+import fs from "fs"
 
 /**
  * FileTransport
@@ -11,6 +11,6 @@ export default class FileTransport extends StreamTransport {
    * @param file Filename to write in
    */
   constructor(file: string) {
-    super(fs.createWriteStream(file, { flags: "a" }));
+    super(fs.createWriteStream(file, { flags: "a" }))
   }
 }

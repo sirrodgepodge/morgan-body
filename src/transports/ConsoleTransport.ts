@@ -1,4 +1,5 @@
-import ITransport from "../interfaces/ITransport";
+/* eslint-disable no-console */
+import ITransport from "../interfaces/ITransport"
 
 /**
  * ConsoleTransport
@@ -6,8 +7,8 @@ import ITransport from "../interfaces/ITransport";
  */
 class ConsoleTransport implements ITransport {
   write(message: string) {
-    console.log(message);
+    console.log(message)
   }
 }
 
-export default ConsoleTransport;
+export default ConsoleTransport
