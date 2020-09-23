@@ -51,6 +51,7 @@ import {
   ThemeType,
   Themes,
   MiddlewareFunc,
+  MorganBodyOptions,
 } from "./types/MiscTypes"
 
 export default MorganBody
@@ -71,6 +72,7 @@ export {
   FilterFunctionType,
   StreamLikeType,
   ThemeType,
+  MorganBodyOptions,
   Themes,
   MiddlewareFunc,
 }

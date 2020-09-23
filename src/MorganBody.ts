@@ -1,16 +1,31 @@
 import { IDriver, ITransport } from "."
-import IMorganBodyOptions from "./interfaces/IMorganOptions"
-import { MorganConstructorOptions } from "./types/MiscTypes"
+import { MorganConstructorOptions, MorganBodyOptions } from "./types/MiscTypes"
 
 export default class MorganBody {
   transports: ITransport[]
 
-  defaultSettings: IMorganBodyOptions = {}
-  settings: IMorganBodyOptions = this.defaultSettings
+  defaultOptions: MorganBodyOptions = {
+    maxBodyLength: 1000,
+    logReqDateTime: true,
+    logAllReqHeader: false,
+    logAllResHeader: false,
+    logReqHeaderList: false,
+    logResHeaderList: false,
+    logReqUserAgent: true,
+    logRequestBody: true,
+    logResponseBody: true,
+    logRequestId: false,
+    logIP: true,
+    timezone: "local",
+    noColors: false,
+    prettify: true,
+    filterParameters: [],
+  }
+  options: MorganBodyOptions = this.defaultOptions
 
-  constructor({ app, transports, settings, driver }: MorganConstructorOptions) {
+  constructor({ app, transports, options, driver }: MorganConstructorOptions) {
     this.transports = transports
-    settings && (this.settings = settings)
+    options && (this.options = this.configure(options))
 
     if (typeof driver !== "function")
       throw new Error(
@@ -22,7 +37,15 @@ export default class MorganBody {
 
   trigger(driver: IDriver) {
     // TODO: make the rest of the stuff
-    driver
+  }
+
+  configure(newConfig: MorganBodyOptions) {
+    for (const optionKey in this.defaultOptions) {
+      if (!newConfig.hasOwnProperty(optionKey)) {
+        newConfig[optionKey] = this.defaultOptions[optionKey]
+      }
+    }
+    return newConfig
   }
 
   writeToTransports(message: string) {

@@ -2,7 +2,6 @@ import { Application, Request, Response } from "express"
 import { FastifyInstance } from "fastify"
 import { Writable } from "stream"
 import { IDriver, ITransport } from ".."
-import IMorganBodyOptions from "../interfaces/IMorganOptions"
 import ITheme from "../interfaces/ITheme"
 
 type DateTimeFormatType = "edt" | "clf" | "iso" | "utc"
@@ -23,6 +22,29 @@ type ThemeType =
 
 type Themes = { [key in ThemeType]: ITheme }
 
+type MorganBodyOptions = {
+  [key: string]: any
+  noColors?: boolean
+  maxBodyLength?: number
+  prettify?: boolean
+  logReqDateTime?: boolean
+  dateTimeFormat?: DateTimeFormatType
+  timezone?: string
+  logReqUserAgent?: boolean
+  logRequestBody?: boolean
+  logReqHeaderList?: boolean
+  logAllReqHeader?: boolean
+  logResponseBody?: boolean
+  logRequestId?: boolean
+  logResHeaderList?: boolean
+  logAllResHeader?: boolean
+  logIP?: boolean
+  skip?: FilterFunctionType | null
+  stream?: StreamLikeType | null
+  theme?: ThemeType
+  filterParameters?: string[]
+}
+
 type TriggerFunction = (driver: IDriver) => void
 
 // This exists solely because in TS you cannot define static
@@ -35,7 +57,7 @@ type MiddlewareFunc = (
 type MorganConstructorOptions = {
   app: Application | FastifyInstance | any
   driver: MiddlewareFunc
-  settings: IMorganBodyOptions
+  options?: MorganBodyOptions
   transports: ITransport[]
 }
 
@@ -46,6 +68,7 @@ export {
   ThemeType,
   Themes,
   MorganConstructorOptions,
+  MorganBodyOptions,
   TriggerFunction,
   MiddlewareFunc,
 }
