@@ -1,5 +1,3 @@
-declare module "morgan-body";
-
 declare module "morgan-body" {
   import * as express from "express";
   import * as stream from "stream";
