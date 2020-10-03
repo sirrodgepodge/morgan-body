@@ -1,6 +1,5 @@
 import { ThemeUtils } from "."
 import IDriver from "./interfaces/IDriver"
-import ConsoleTransport from "./transports/ConsoleTransport"
 import {
   MorganConstructorOptions,
   MorganBodyOptions,
