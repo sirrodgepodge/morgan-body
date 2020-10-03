@@ -15,8 +15,9 @@ Three main goals of v3:
 - ~~Cleanup some old code~~
 - ~~Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)~~
 - Fix all known issues
+- Write new README and a documentation
 - Create new name, as `morgan-body` will become misleading
 
 ## Known Issues
 
-- Themes do not work, except defaultTheme
+- Themes do not work, except for defaultTheme
