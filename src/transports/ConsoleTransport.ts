@@ -6,7 +6,7 @@ import ITransport from "../interfaces/ITransport"
  * Transport for logging into console
  */
 class ConsoleTransport implements ITransport {
-  write(message: string) {
+  write(message: any) {
     console.log(message)
   }
 }

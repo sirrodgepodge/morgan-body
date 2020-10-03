@@ -22,3 +22,20 @@ export const shallowClone = (obj: Record<string, unknown>) => {
   })
   return newObj
 }
+
+/**
+ * Removes any other keys that are not
+ * specified in param keys
+ *
+ * @param obj The object
+ * @param keys Keys to keep
+ */
+export const onlyKeepKeys = (obj: object, keys: string[]) => {
+  for (const key in obj) {
+    if (!keys.includes(key)) {
+      delete obj[key]
+    }
+  }
+
+  return obj
+}

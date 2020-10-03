@@ -19,6 +19,12 @@ class ExpressDriver implements IDriver {
 
   userAgent = () => this.req.headers["user-agent"] || "unknown"
   ip = () => this.req.ip
+
+  method = () => this.req.method
+
+  path = () => this.req.url
+
+  id = () => "Not implemented yet" // TODO: Request Id
 }
 
 const registerMiddleware: MiddlewareFunc = (app: Application, trigger) => {

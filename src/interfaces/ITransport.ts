@@ -7,5 +7,5 @@ export default interface ITransport {
    * This function is called whenever morgan-body logs something
    * @param message Message to log
    */
-  write: (message: string) => unknown
+  write: (message: any) => unknown
 }

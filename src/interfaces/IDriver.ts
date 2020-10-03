@@ -32,4 +32,19 @@ export default interface IDriver {
    * Remote IP address
    */
   ip: () => string
+
+  /**
+   * Full Path
+   */
+  path: () => string
+
+  /**
+   * HTTP Method
+   */
+  method: () => string
+
+  /**
+   * Request Id
+   */
+  id: () => string
 }

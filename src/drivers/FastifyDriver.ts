@@ -19,6 +19,12 @@ class FastifyDriver implements IDriver {
 
   userAgent = () => this.request.headers["user-agent"] || "unknown"
   ip = () => this.request.ip
+
+  method = () => this.request.method
+
+  path = () => this.request.raw.url
+
+  id = () => this.request.id
 }
 
 const registerMiddleware: MiddlewareFunc = (app: FastifyInstance, trigger) => {

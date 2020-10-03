@@ -52,6 +52,8 @@ import {
   Themes,
   MiddlewareFunc,
   MorganBodyOptions,
+  MorganConstructorOptions,
+  MorganConstructorTransport,
 } from "./types/MiscTypes"
 
 export default MorganBody
@@ -75,4 +77,6 @@ export {
   MorganBodyOptions,
   Themes,
   MiddlewareFunc,
+  MorganConstructorOptions,
+  MorganConstructorTransport,
 }

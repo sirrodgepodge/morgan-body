@@ -32,11 +32,11 @@ type MorganBodyOptions = {
   timezone?: string
   logReqUserAgent?: boolean
   logRequestBody?: boolean
-  logReqHeaderList?: boolean
+  logReqHeaderList?: string[]
   logAllReqHeader?: boolean
   logResponseBody?: boolean
   logRequestId?: boolean
-  logResHeaderList?: boolean
+  logResHeaderList?: string[]
   logAllResHeader?: boolean
   logIP?: boolean
   skip?: FilterFunctionType | null
@@ -57,8 +57,12 @@ type MiddlewareFunc = (
 type MorganConstructorOptions = {
   app: Application | FastifyInstance | any
   driver: MiddlewareFunc
+  transports: MorganConstructorTransport[]
+}
+
+type MorganConstructorTransport = {
+  transport: ITransport
   options?: MorganBodyOptions
-  transports: ITransport[]
 }
 
 export {
@@ -71,4 +75,5 @@ export {
   MorganBodyOptions,
   TriggerFunction,
   MiddlewareFunc,
+  MorganConstructorTransport,
 }

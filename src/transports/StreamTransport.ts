@@ -11,7 +11,9 @@ export default class StreamTransport implements ITransport {
     this.stream = stream
   }
 
-  write(message: string) {
+  write(message: any) {
+    if (typeof message === "object") message = JSON.stringify(message)
+
     this.stream.write(message)
   }
 }
