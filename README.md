@@ -7,12 +7,16 @@ Three main goals of v3:
 - Compatibility across **more** libraries, not just Express
 - Easier way to log on multiple places via **transports**
 
-# TODO
+## TODO
 
 - ~~Implement transports~~
-- Complete codebase transfer to TypeScript
+- ~~Complete codebase transfer to TypeScript~~
 - Write new tests (possibly replace mocha with jest?)
-- Cleanup some old code
-- Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)
-  - State: Drivers complete
+- ~~Cleanup some old code~~
+- ~~Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)~~
+- Fix all known issues
 - Create new name, as `morgan-body` will become misleading
+
+## Known Issues
+
+- Themes do not work, except defaultTheme
