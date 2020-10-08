@@ -1,4 +1,3 @@
-import { WriteStream } from "fs"
 import ITransport from "../interfaces/ITransport"
 import { StreamLikeType } from "../types/MiscTypes"
 

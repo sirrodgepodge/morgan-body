@@ -2,7 +2,7 @@ import fs from "fs"
 import t from "tap"
 
 t.test("FileTransport", async t => {
-  const testFileName = "../../file_transport--temp.log"
+  const testFileName = "file_transport--temp.log"
   const transport = await import("../../src/transports/FileTransport")
 
   // Transport must have a default export
