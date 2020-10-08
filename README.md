@@ -4,17 +4,19 @@ This is the development branch of the next release (v3).
 Three main goals of v3:
 
 - Rewrite in **TypeScript**
-- Compatibility across **more** libraries, not just Express
-- Easier way to log on multiple places via **transports**
+- Compatibility across **more** libraries via **drivers** (not be limited only to Express)
+- Easier way to log on multiple places via **transports** (let user do custom implementation of logging)
 
 ## TODO
 
 - ~~Implement transports~~
 - ~~Complete codebase transfer to TypeScript~~
-- Write new tests (possibly replace mocha with jest?)
+- Write new tests
 - ~~Cleanup some old code~~
 - ~~Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)~~
-- Fix all known issues
+- Make sure all features of Morgan Body v2.5 are implemented
+  - Skip
+- Fix all known issues (see [Known Issues](#known-issues))
 - Write new README and a documentation
 - Create new name, as `morgan-body` will become misleading
 
