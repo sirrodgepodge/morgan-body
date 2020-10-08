@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import IDriver from "../interfaces/IDriver"
 import { MiddlewareFunc } from "../types/MiscTypes"
 
-class FastifyDriver implements IDriver {
+export class FastifyDriver implements IDriver {
   request: FastifyRequest
   reply: FastifyReply
 

@@ -12,10 +12,12 @@ Three main goals of v3:
 - ~~Implement transports~~
 - ~~Complete codebase transfer to TypeScript~~
 - Write new tests
+  - Find a way to easily test registerMiddleware functions
 - ~~Cleanup some old code~~
 - ~~Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)~~
-- Make sure all features of Morgan Body v2.5 are implemented
+- Make sure all missing features are implemented
   - Skip
+  - Express Driver Request Id
 - Fix all known issues (see [Known Issues](#known-issues))
 - Write new README and a documentation
 - Create new name, as `morgan-body` will become misleading

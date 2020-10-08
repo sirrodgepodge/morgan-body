@@ -1,13 +1,14 @@
 import { WriteStream } from "fs"
 import ITransport from "../interfaces/ITransport"
+import { StreamLikeType } from "../types/MiscTypes"
 
 /**
  * Logger for writing into a WriteStream
  */
 export default class StreamTransport implements ITransport {
-  stream: WriteStream
+  stream: StreamLikeType
 
-  constructor(stream: WriteStream) {
+  constructor(stream: StreamLikeType) {
     this.stream = stream
   }
 

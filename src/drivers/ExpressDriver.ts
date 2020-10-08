@@ -2,7 +2,7 @@ import { Application, Request, Response } from "express"
 import IDriver from "../interfaces/IDriver"
 import { MiddlewareFunc } from "../types/MiscTypes"
 
-class ExpressDriver implements IDriver {
+export class ExpressDriver implements IDriver {
   req: Request
   res: Response
 
