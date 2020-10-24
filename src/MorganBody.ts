@@ -112,19 +112,24 @@ export default class MorganBody {
        *
        */
       const requestHeaders = driver.requestHeaders()
-      if (options.logAllReqHeader) {
-        transport.write(`${actionColor}Request Headers: ${defaultColor}`)
-        transport.write(driver.requestHeaders())
-      } else {
-        if (options.logReqHeaderList && options.logReqHeaderList.length > 0) {
+      if (
+        requestHeaders &&
+        (options.logAllReqHeader || options.logReqHeaderList instanceof Array)
+      ) {
+        if (options.logAllReqHeader) {
           transport.write(`${actionColor}Request Headers: ${defaultColor}`)
-          transport.write(
-            jsonFormatter(
-              onlyKeepKeys(driver.requestHeaders(), options.logReqHeaderList),
-              options.theme !== "noColorsTheme",
-              !options.prettify
+          transport.write(driver.requestHeaders())
+        } else {
+          if (options.logReqHeaderList && options.logReqHeaderList.length > 0) {
+            transport.write(`${actionColor}Request Headers: ${defaultColor}`)
+            transport.write(
+              jsonFormatter(
+                onlyKeepKeys(driver.requestHeaders(), options.logReqHeaderList),
+                options.theme !== "noColorsTheme",
+                !options.prettify
+              )
             )
-          )
+          }
         }
       }
 
