@@ -16,12 +16,17 @@ Three main goals of v3:
 - ~~Cleanup some old code~~
 - ~~Get rid of [expressjs/morgan](https://github.com/expressjs/morgan)~~
 - Make sure all missing features are implemented
-  - Skip
-  - Express Driver Request Id
+  - ~~Skip~~
+  - ~~Express Driver Request Id~~
+  - ~~Filter Parameters~~
+  - ~~Different Timezone Formats~~
+  - Prettifying on other Transports than Console, Disable prettifying
+  - Max Body Length
 - Fix all known issues (see [Known Issues](#known-issues))
 - Write new README and a documentation
 - Create new name, as `morgan-body` will become misleading
 
 ## Known Issues
 
-- Themes do not work, except for defaultTheme
+- Themes do not work, except for defaultTheme (because it's values are static)
+  - ThemeUtils.skewDefaults is broken

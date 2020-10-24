@@ -6,7 +6,7 @@ import ITheme from "../interfaces/ITheme"
 
 type DateTimeFormatType = "edt" | "clf" | "iso" | "utc"
 
-type FilterFunctionType = (request: Request, response: Response) => boolean
+type FilterFunctionType = (driver: IDriver) => boolean
 
 type StreamLikeType = Writable | { write: Writable["write"] }
 
@@ -22,6 +22,8 @@ type ThemeType =
 
 type Themes = { [key in ThemeType]: ITheme }
 
+type Timezone = "clf" | "iso" | "web"
+
 type MorganBodyOptions = {
   [key: string]: any
   noColors?: boolean
@@ -29,7 +31,7 @@ type MorganBodyOptions = {
   prettify?: boolean
   logReqDateTime?: boolean
   dateTimeFormat?: DateTimeFormatType
-  timezone?: string
+  timezone?: Timezone
   logReqUserAgent?: boolean
   logRequestBody?: boolean
   logReqHeaderList?: string[]
@@ -76,4 +78,5 @@ export {
   TriggerFunction,
   MiddlewareFunc,
   MorganConstructorTransport,
+  Timezone,
 }

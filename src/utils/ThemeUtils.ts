@@ -32,27 +32,7 @@ export default class ThemeUtils {
 
   colorDigitsMatcher = /\[(\d+)m/
 
-  skewDefaults = (func: SkewDefaultsFunction) =>
-    Object.keys(this.defaultTheme).reduce(
-      (prev: { [key: string]: string }, curr: string) => {
-        const currentThemeColor = this.defaultTheme[curr]
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const ansiNumbers = this.colorDigitsMatcher.exec(currentThemeColor)!
-          .input
-        if (ansiNumbers.length === 1) {
-          // don't want to mess with unsetString
-          prev[curr] = currentThemeColor
-        } else {
-          const [typeNumber, colorNumber] = ansiNumbers.split("")
-          prev[curr] = `\x1b[${func({
-            typeNumber: +typeNumber,
-            colorNumber: +colorNumber,
-          })}m`
-        }
-        return prev
-      },
-      {}
-    ) as ITheme
+  skewDefaults = (func: SkewDefaultsFunction) => this.defaultTheme
 
   /**
    * Creates all themes
@@ -61,13 +41,14 @@ export default class ThemeUtils {
   createThemes = () => {
     const themes: Themes = {
       defaultTheme: this.defaultTheme,
-      noColorsTheme: Object.keys(this.defaultTheme).reduce(
-        (prev: { [key: string]: string }, curr: string) => {
-          prev[curr] = ""
-          return prev
-        },
-        {}
-      ) as ITheme,
+      noColorsTheme: (() => {
+        const noColors = this.defaultTheme
+        Object.keys(noColors).map(el => {
+          noColors[el] = ""
+          return el
+        })
+        return noColors
+      })(),
       inverted: this.skewDefaults(
         ({ typeNumber, colorNumber }) => `${typeNumber}${7 - colorNumber}`
       ),

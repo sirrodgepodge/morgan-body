@@ -1,12 +1,15 @@
 import { ThemeUtils } from "."
+import jsonFormatter from "./formatter/JsonFormatter"
 import IDriver from "./interfaces/IDriver"
 import {
   MorganConstructorOptions,
   MorganBodyOptions,
   MorganConstructorTransport,
   Themes,
+  Timezone,
 } from "./types/MiscTypes"
-import { onlyKeepKeys } from "./utils/ArrayUtils"
+import { getActualKeys, onlyKeepKeys } from "./utils/ArrayUtils"
+import { toClfDate } from "./utils/TimeUtils"
 
 export default class MorganBody {
   transports: MorganConstructorTransport[]
@@ -24,7 +27,7 @@ export default class MorganBody {
     logResponseBody: true,
     logRequestId: true,
     logIP: true,
-    timezone: "local",
+    timezone: "web",
     noColors: true,
     prettify: true,
     filterParameters: [],
@@ -48,6 +51,18 @@ export default class MorganBody {
     driver(app, this.trigger.bind(this))
   }
 
+  getTime(date: Date, timezone: Timezone) {
+    switch (timezone) {
+      case "clf":
+        return toClfDate(date)
+      case "iso":
+        return date.toISOString()
+      case "web":
+      default:
+        return date.toUTCString()
+    }
+  }
+
   trigger(driver: IDriver) {
     // console.log("Logging with", driver.constructor.name)
     for (const { transport, options } of this.transports) {
@@ -60,13 +75,26 @@ export default class MorganBody {
         defaultColor,
       } = this.themes[options.theme]
 
+      if (options.hasOwnProperty("skip")) {
+        const skipped = options.skip(driver)
+
+        // Continue instead of return, because like other options,
+        // skip is a transport-specific option, return would however
+        // result in skipping all transports.
+        if (skipped) continue
+      }
+
       let firstLine = `${
         options.logRequestId ? "Request Id:" + driver.id() + " - " : ""
       }${actionColor}Request: ${methodColor}${driver.method()} ${pathColor}${driver.path()}`
 
       if (options.logReqDateTime)
         firstLine +=
-          " " + userAgentColor + "at " + dateColor + new Date().toUTCString()
+          " " +
+          userAgentColor +
+          "at " +
+          dateColor +
+          this.getTime(new Date(), options.timezone)
       // TODO: if (options.dateTimeFormat) firstLine += `[${options.dateTimeFormat}]`
       if (options.logReqDateTime && options.logReqUserAgent) firstLine += ","
       if (options.logIP)
@@ -78,44 +106,97 @@ export default class MorganBody {
 
       transport.write(firstLine)
 
+      /**
+       *
+       * Request Headers
+       *
+       */
+      const requestHeaders = driver.requestHeaders()
       if (options.logAllReqHeader) {
-        // *logAllReqHeaders
         transport.write(`${actionColor}Request Headers: ${defaultColor}`)
         transport.write(driver.requestHeaders())
       } else {
         if (options.logReqHeaderList && options.logReqHeaderList.length > 0) {
           transport.write(`${actionColor}Request Headers: ${defaultColor}`)
           transport.write(
-            onlyKeepKeys(driver.requestHeaders(), options.logReqHeaderList)
+            jsonFormatter(
+              onlyKeepKeys(driver.requestHeaders(), options.logReqHeaderList),
+              options.theme !== "noColorsTheme",
+              !options.prettify
+            )
           )
         }
       }
 
-      const reqBody = driver.requestBody()
-
-      if (options.logRequestBody && reqBody) {
+      /**
+       *
+       * Request Body
+       *
+       */
+      const requestBody = driver.requestBody() as Record<string, any>
+      if (options.logRequestBody && requestBody) {
         transport.write(`${actionColor}Request Body: ${defaultColor}`)
-        transport.write(reqBody)
+        Object.keys(requestBody).map(key => {
+          if (options.filterParameters.includes(requestBody[key]))
+            requestBody[key] = "[FILTERED]"
+          return key
+        })
+        transport.write(
+          jsonFormatter(
+            requestBody,
+            options.theme !== "noColorsTheme",
+            !options.prettify
+          )
+        )
       }
 
-      if (options.logAllResHeader) {
-        // *logAllReqHeaders
+      /**
+       *
+       * Formatting Response Headers
+       *
+       */
+      const responseHeaders = driver.responseHeaders()
+      if (
+        options.logAllResHeader &&
+        getActualKeys(responseHeaders).length !== 0
+      ) {
         transport.write(`${actionColor}Response Headers: ${defaultColor}`)
-        transport.write(driver.responseHeaders())
+        transport.write(
+          jsonFormatter(
+            responseHeaders,
+            options.theme !== "noColorsTheme",
+            !options.prettify
+          )
+        )
       } else {
         if (options.logResHeaderList && options.logResHeaderList.length > 0) {
-          transport.write(`${actionColor}Response Headers: ${defaultColor}}`)
-          transport.write(
-            onlyKeepKeys(driver.responseHeaders(), options.logResHeaderList)
+          const filteredHeaders = onlyKeepKeys(
+            driver.responseHeaders(),
+            options.logResHeaderList
           )
+          if (getActualKeys(filteredHeaders).length >= 1) {
+            transport.write(`${actionColor}Response Headers: ${defaultColor}}`)
+            transport.write(jsonFormatter(filteredHeaders))
+          }
         }
       }
 
-      const resBody = driver.responseBody()
+      const responseBody = driver.responseBody() as Record<string, any>
 
-      if (options.logRequestBody && resBody) {
+      if (options.logRequestBody && responseBody) {
         transport.write(`${actionColor}Response Body: ${defaultColor}`)
-        transport.write(resBody)
+        Object.keys(responseBody).map(key => {
+          if (options.filterParameters.includes(responseBody[key]))
+            responseBody[key] = "[FILTERED]"
+          return key
+        })
+        transport.write(
+          jsonFormatter(
+            responseBody,
+            options.theme !== "noColorsTheme",
+            !options.prettify
+          )
+        )
       }
     }
   }

@@ -48,7 +48,7 @@ t.test("FastifyDriver", async t => {
 
   t.equal(driver.userAgent(), fakeReq.headers["user-agent"])
   delete fakeReq.headers["user-agent"]
-  driver.request = fakeReq as any
+  driver.req = fakeReq as any
   t.equal(driver.userAgent(), "unknown")
 
   t.equal(driver.requestBody(), fakeReq.body)
@@ -60,7 +60,9 @@ t.test("FastifyDriver", async t => {
     "should be equal"
   )
   t.equal(driver.responseBody(), resBody)
-  t.equal(driver.id(), fakeReq.id) // TODO: test once implemented
+  t.equal(driver.id(), fakeReq.id)
+  t.equal(driver.request(), fakeReq)
+  t.equal(driver.response(), fakeRes)
 
   t.end()
 })

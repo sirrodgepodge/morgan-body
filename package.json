@@ -36,9 +36,12 @@
   },
   "homepage": "https://github.com/sirrodgepodge/morgan-body#readme",
   "dependencies": {
+    "@types/colors": "^1.2.1",
     "@types/express": "^4.17.8",
     "@types/node": "^14.10.1",
     "@types/tap": "^14.10.1",
+    "chalk": "^4.1.0",
+    "colors": "^1.4.0",
     "fastify": "^3.4.1",
     "moment-timezone": "^0.5.13",
     "on-finished": "^2.3.0",

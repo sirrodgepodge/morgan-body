@@ -6,3 +6,4 @@
 tap-snapshots
 # for now
 coverage
+file_transport--temp.log

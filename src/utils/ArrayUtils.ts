@@ -30,7 +30,7 @@ export const shallowClone = (obj: Record<string, unknown>) => {
  * @param obj The object
  * @param keys Keys to keep
  */
-export const onlyKeepKeys = (obj: object, keys: string[]) => {
+export const onlyKeepKeys = <T extends object>(obj: T, keys: any[]): T => {
   for (const key in obj) {
     if (!keys.includes(key)) {
       delete obj[key]
@@ -38,4 +38,15 @@ export const onlyKeepKeys = (obj: object, keys: string[]) => {
   }
 
   return obj
+}
+
+/**
+ * Returns array with keys of an object,
+ * filters out keys that have value of undefined
+ *
+ * @param obj Object to take keys from
+ * @returns {Array} of Object's keys
+ */
+export const getActualKeys = (obj: object): string[] => {
+  return Object.keys(obj).filter(el => obj[el] !== undefined)
 }

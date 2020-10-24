@@ -24,7 +24,11 @@ export class ExpressDriver implements IDriver {
 
   path = () => this.req.url
 
-  id = () => "Not implemented yet" // TODO: Request Id
+  id = () => (this.req as any).id || "none"
+
+  request = () => this.req
+
+  response = () => this.res
 }
 
 const registerMiddleware: MiddlewareFunc = (app: Application, trigger) => {

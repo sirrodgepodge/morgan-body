@@ -3,28 +3,32 @@ import IDriver from "../interfaces/IDriver"
 import { MiddlewareFunc } from "../types/MiscTypes"
 
 export class FastifyDriver implements IDriver {
-  request: FastifyRequest
+  req: FastifyRequest
   reply: FastifyReply
 
   constructor(request: FastifyRequest, reply: FastifyReply) {
-    this.request = request
+    this.req = request
     this.reply = reply
   }
 
-  requestHeaders = () => this.request.headers
+  requestHeaders = () => this.req.headers
   responseHeaders = () => this.reply.getHeaders()
 
-  requestBody = () => this.request.body
+  requestBody = () => this.req.body
   responseBody = () => null
 
-  userAgent = () => this.request.headers["user-agent"] || "unknown"
-  ip = () => this.request.ip
+  userAgent = () => this.req.headers["user-agent"] || "unknown"
+  ip = () => this.req.ip
 
-  method = () => this.request.method
+  method = () => this.req.method
 
-  path = () => this.request.raw.url
+  path = () => this.req.raw.url
 
-  id = () => this.request.id
+  id = () => this.req.id
+
+  request = () => this.req
+
+  response = () => this.reply
 }
 
 const registerMiddleware: MiddlewareFunc = (app: FastifyInstance, trigger) => {

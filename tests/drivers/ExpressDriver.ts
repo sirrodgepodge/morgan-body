@@ -14,6 +14,7 @@ t.test("ExpressDriver", async t => {
     ip: "1.1.1.1",
     method: "GET",
     url: "/",
+    id: "11",
   }
 
   const fakeRes = {
@@ -38,9 +39,12 @@ t.test("ExpressDriver", async t => {
   t.equal(driver.requestHeaders(), fakeReq.headers)
 
   t.equal(driver.userAgent(), fakeReq.headers["user-agent"])
+  t.equal(driver.id(), fakeReq.id) // TODO: test once implemented
   delete fakeReq.headers["user-agent"]
+  delete fakeReq.id
   driver.req = fakeReq as any
   t.equal(driver.userAgent(), "unknown")
+  t.equal(driver.id(), "none")
 
   t.equal(driver.requestBody(), fakeReq.body)
   t.equal(driver.ip(), fakeReq.ip)
@@ -51,7 +55,8 @@ t.test("ExpressDriver", async t => {
     "should be equal"
   )
   t.equal(driver.responseBody(), fakeRes._morganRes)
-  t.equal(driver.id(), "Not implemented yet") // TODO: test once implemented
+  t.equal(driver.request(), fakeReq)
+  t.equal(driver.response(), fakeRes)
 
   t.end()
 })

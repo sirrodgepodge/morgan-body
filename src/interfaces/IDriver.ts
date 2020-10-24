@@ -47,4 +47,14 @@ export default interface IDriver {
    * Request Id
    */
   id: () => string
+
+  /**
+   * Request
+   */
+  request: () => any
+
+  /**
+   * Response
+   */
+  response: () => any
 }

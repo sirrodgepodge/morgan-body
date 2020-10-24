@@ -40,6 +40,8 @@ import ETheme from "./enums/ETheme"
  * Utils
  */
 import ThemeUtils from "./utils/ThemeUtils"
+import * as TimeUtils from "./utils/TimeUtils"
+import * as ArrayUtils from "./utils/ArrayUtils"
 
 /**
  * Types
@@ -54,6 +56,7 @@ import {
   MorganBodyOptions,
   MorganConstructorOptions,
   MorganConstructorTransport,
+  Timezone,
 } from "./types/MiscTypes"
 
 export default MorganBody
@@ -70,6 +73,8 @@ export {
   EColor,
   ETheme,
   ThemeUtils,
+  TimeUtils,
+  ArrayUtils,
   DateTimeFormatType,
   FilterFunctionType,
   StreamLikeType,
@@ -79,4 +84,5 @@ export {
   MiddlewareFunc,
   MorganConstructorOptions,
   MorganConstructorTransport,
+  Timezone,
 }
