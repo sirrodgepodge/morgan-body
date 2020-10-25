@@ -1,11 +1,21 @@
 {
   "name": "morgan-body",
-  "version": "2.5.2",
-  "author": "Roger Beaman <rwcbeaman@gmail.com> (https://github.com/sirrodgepodge)",
+  "version": "3.0.0-pre",
+  "author": {
+    "name": "Roger Beaman",
+    "email": "rwcbeaman@gmail.com",
+    "url": "https://github.com/sirrodgepodge"
+  },
   "description": "morgan logging req, res, and body",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha --check-leaks --reporter spec --bail"
+    "test": "tap tests/ --snapshot",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .ts",
+    "precommit": "npm run format && npm run lint && npm run test",
+    "commit": "git add . && git commit -m",
+    "push": "git push origin"
   },
   "repository": {
     "type": "git",
@@ -26,15 +36,23 @@
   },
   "homepage": "https://github.com/sirrodgepodge/morgan-body#readme",
   "dependencies": {
+    "@types/colors": "^1.2.1",
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.10.1",
+    "@types/tap": "^14.10.1",
+    "chalk": "^4.1.0",
+    "colors": "^1.4.0",
+    "fastify": "^3.4.1",
     "moment-timezone": "^0.5.13",
     "on-finished": "^2.3.0",
-    "on-headers": "^1.0.1"
+    "on-headers": "^1.0.1",
+    "typescript": "^4.0.2"
   },
   "devDependencies": {
-    "body-parser": "^1.18.2",
-    "chai": "^4.1.2",
-    "mocha": "^7.2.0",
-    "supertest": "^3.1.0",
-    "universal-stream-test": "^1.0.0"
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
+    "prettier": "^2.1.2",
+    "tap": "^14.10.8"
   }
 }

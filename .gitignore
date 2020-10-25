@@ -1,1 +1,9 @@
 /node_modules
+/dist
+/expressus
+
+.nyc_output
+tap-snapshots
+# for now
+coverage
+file_transport--temp.log
