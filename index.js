@@ -206,6 +206,8 @@ module.exports = function morganBody(app, options) {
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
+  var logNewLine = options.hasOwnProperty('logNewLine') ? options.logNewLine : false;
+
 
   var theme;
   if (noColors) {
@@ -256,6 +258,7 @@ module.exports = function morganBody(app, options) {
   }
 
   morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
+  morganOptions.logNewLine = logNewLine; // needs to be passed to modify output stream separator even when prettify is set to false
 
   const optionalIdInclusionStr = logRequestId ? '[:id] ' : '';
 
@@ -480,7 +483,8 @@ function morgan(format, opts) {
     // record request start
     recordStartTime.call(req);
 
-    var lineSeparator = opts.prettify === true ? '\n' : '';
+    var lineSeparator = getLineSeperator(opts);
+  
     function logRequest() {
       if (skip !== false && skip(req, res)) {
         return;
@@ -865,4 +869,13 @@ function recordStartTime() {
 function token(name, fn) {
   morgan[name] = fn;
   return this;
+}
+
+
+function getLineSeperator(opts){
+  if(opts.prettify===true || opts.logNewLine===true){
+    return '\n';
+  } else {
+    return '';
+  }
 }

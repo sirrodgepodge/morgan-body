@@ -139,7 +139,9 @@ morganBody(app, {
     maxBodyLength: (default: 1000), caps the length of the console output of a single request/response to specified length,
 
 
-    prettify: (default: true), prettifies the JSON request/response body (may want to turn off for server logs),
+    prettify: (default: true), prettifies the JSON request/response body (may want to turn off for server logs) and adds new line after each log entry irrespective of logNewLine option,
+
+    logNewLine: (default: false), adds new line after each log entry. can enable new line prettify is false,
 
     logReqDateTime: (default: true), setting to false disables logging request date + time,
 
