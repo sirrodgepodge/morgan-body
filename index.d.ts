@@ -16,7 +16,7 @@ declare module "morgan-body" {
     timezone?: string;
     logReqUserAgent?: boolean;
     logRequestBody?: boolean;
-    logReqHeaderList?: boolean;
+    logReqHeaderList?: string[];
     logAllReqHeader?: boolean;
     logResponseBody?: boolean;
     logRequestId?: boolean;
