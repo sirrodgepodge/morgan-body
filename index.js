@@ -250,6 +250,8 @@ module.exports = function morganBody(app, options) {
   var status200 = themeObj.status200;
   var status100 = themeObj.status100;
 
+  var lineSeparator = getLineSeperator(morganOptions.includeNewLine);
+
   // handling of native morgan options
   var morganOptions = {};
   if (options.hasOwnProperty('buffer')) {
@@ -265,7 +267,7 @@ module.exports = function morganBody(app, options) {
     morganOptions.skip = options.skip;
   }
   if (options.hasOwnProperty('logIP')) {
-      morganOptions.logIP = options.logIP
+    morganOptions.logIP = options.logIP
   }
 
   morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
@@ -313,7 +315,7 @@ module.exports = function morganBody(app, options) {
     var fn = developmentFormatLine.func;
     if (!fn) {
       // compile and memoize
-      var formatString = actionColor + optionalIdInclusionStr + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
+      var formatString = lineSeparator + actionColor + optionalIdInclusionStr + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
       if (logAllReqHeader) {
         formatString += ' headers[:request-headers]';
       } else {
@@ -341,7 +343,6 @@ module.exports = function morganBody(app, options) {
   app.use(morgan(morganReqFormatName, reqMorganOptions));
 
   if (logRequestBody || logResponseBody) {
-    var lineSeparator = getLineSeperator(morganOptions.includeNewLine);
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
