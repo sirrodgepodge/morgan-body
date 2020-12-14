@@ -89,7 +89,7 @@ describe('morganBody()', function () {
       line => expect(forceResponseTimeToZero(line)).to.equal(`Response: 200 0.000 ms `)
     );
 
-    simulateRequestPromise({ noColors: true, prettify: false }, 'post', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
+    simulateRequestPromise({ noColors: true, prettify: false, includeNewLine: false }, 'post', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
 
     return consoleTestPromise;
   });

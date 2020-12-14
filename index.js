@@ -131,7 +131,17 @@ function shallowClone(obj) {
   return newObj;
 }
 
-function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor, bodyColor, defaultColor, filterParameters) {
+function bodyToString(
+  maxBodyLength,
+  prettify,
+  prependStr,
+  separatorStr,
+  body,
+  bodyActionColor,
+  bodyColor,
+  defaultColor,
+  filterParameters
+) {
   if (!body) {
     return null; // must return "null" to avoid morgan logging blank line
   }
@@ -164,9 +174,9 @@ function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor
   }
 
   if (isString && body.length) {
-    finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor + '\n';
+    finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor + separatorStr;
 
-    if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + '\n...';
+    if (body.length > maxBodyLength) body = body.slice(0, maxBodyLength) + separatorStr + '...';
     finalStr += bodyColor + body.slice(0, maxBodyLength) + defaultColor;
   } else if(isObj && Object.keys(body).length > 0) {
     finalStr += bodyActionColor + prependStr + ' Body:' + defaultColor;
@@ -176,10 +186,10 @@ function bodyToString(maxBodyLength, prettify, prependStr, body, bodyActionColor
       if (filterParameters.includes(key)) return "[FILTERED]";
       return value;
     }, jsonSeparator);
-    if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + '\n...';
+    if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + separatorStr + '...';
 
-    var lineSeparator = prettify === true ? '\n' : '';
-    const splitOnNewLine = stringifiedObj.split('\n');
+    var lineSeparator = prettify === true ? separatorStr : '';
+    const splitOnNewLine = stringifiedObj.split(separatorStr);
     const splitOnNewLineLength = splitOnNewLine.length;
     for (let i = 0; i < splitOnNewLineLength; i++) {
       finalStr += lineSeparator + bodyColor + splitOnNewLine[i] + defaultColor;
@@ -205,8 +215,8 @@ module.exports = function morganBody(app, options) {
   var timezone = options.hasOwnProperty('timezone') ? options.timezone || 'local' : 'local';
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
+  var includeNewLine = options.hasOwnProperty('includeNewLine') ? options.includeNewLine : prettify;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
-  var includeNewLine = options.hasOwnProperty('includeNewLine') ? options.includeNewLine : false;
   var immediateReqLog = options.hasOwnProperty('immediateReqLog') ? options.immediateReqLog : true;
 
 
@@ -331,6 +341,7 @@ module.exports = function morganBody(app, options) {
   app.use(morgan(morganReqFormatName, reqMorganOptions));
 
   if (logRequestBody || logResponseBody) {
+    var lineSeparator = getLineSeperator(morganOptions.includeNewLine);
     function logBodyGen(prependStr, getBodyFunc) {
       var bodyFormatName = 'bodyFmt_' + prependStr + morganBodyUseCounter;
       morgan.format(bodyFormatName, function logBody(_, req, res) {
@@ -339,7 +350,17 @@ module.exports = function morganBody(app, options) {
           const IDToken = getIDToken(req);
           exPrependStr = '[' + (IDToken === undefined ? '-' : IDToken) + '] ' + prependStr;
         }
-        return bodyToString(maxBodyLength, prettify, exPrependStr, getBodyFunc(req, res), bodyActionColor, bodyColor, defaultColor, filterParameters);
+        return bodyToString(
+          maxBodyLength,
+          prettify,
+          exPrependStr,
+          lineSeparator,
+          getBodyFunc(req, res),
+          bodyActionColor,
+          bodyColor,
+          defaultColor,
+          filterParameters
+        );
       });
       return bodyFormatName;
     }
@@ -483,7 +504,7 @@ function morgan(format, opts) {
     // record request start
     recordStartTime.call(req);
 
-    var lineSeparator = getLineSeperator(opts);
+    var lineSeparator = getLineSeperator(opts.includeNewLine);
   
     function logReqOrRes() {
       if (skip !== false && skip(req, res)) {
@@ -872,8 +893,8 @@ function token(name, fn) {
 }
 
 
-function getLineSeperator(opts){
-  if (opts.includeNewLine === true){
+function getLineSeperator(includeNewLine){
+  if (includeNewLine){
     return '\n';
   } else {
     return '';
