@@ -23,13 +23,13 @@ declare module "morgan-body" {
     logResHeaderList?: boolean;
     logAllResHeader?: boolean;
     logIP?: boolean,
-    logNewLine?:boolean;
+    includeNewLine?:boolean;
     skip?: FilterFunctionType | null;
     stream?: StreamLikeType | null;
     theme?: ThemeType;
     filterParameters?: string[];
+    immediateReqLog: boolean;
   }
 
   export default function morganBody(app: express.Application, options?: IMorganBodyOptions): void;
 }
-

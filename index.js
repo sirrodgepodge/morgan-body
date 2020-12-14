@@ -206,7 +206,8 @@ module.exports = function morganBody(app, options) {
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
-  var logNewLine = options.hasOwnProperty('logNewLine') ? options.logNewLine : false;
+  var includeNewLine = options.hasOwnProperty('includeNewLine') ? options.includeNewLine : false;
+  var immediateReqLog = options.hasOwnProperty('immediateReqLog') ? options.immediateReqLog : true;
 
 
   var theme;
@@ -258,7 +259,7 @@ module.exports = function morganBody(app, options) {
   }
 
   morganOptions.prettify = prettify; // needs to be passed to modify output stream separator
-  morganOptions.logNewLine = logNewLine; // needs to be passed to modify output stream separator even when prettify is set to false
+  morganOptions.includeNewLine = includeNewLine; // needs to be passed to modify output stream separator even when prettify is set to false
 
   const optionalIdInclusionStr = logRequestId ? '[:id] ' : '';
 
@@ -325,10 +326,9 @@ module.exports = function morganBody(app, options) {
     return fn(tokens, req, res);
   });
 
-  // log when request comes in
   var reqMorganOptions = shallowClone(morganOptions);
-  reqMorganOptions.immediate = true;
-  app.use(morgan(morganReqFormatName, morganOptions));
+  reqMorganOptions.immediate = immediateReqLog; // log request when it comes in (instead of waiting until response goes out)
+  app.use(morgan(morganReqFormatName, reqMorganOptions));
 
   if (logRequestBody || logResponseBody) {
     function logBodyGen(prependStr, getBodyFunc) {
@@ -485,7 +485,7 @@ function morgan(format, opts) {
 
     var lineSeparator = getLineSeperator(opts);
   
-    function logRequest() {
+    function logReqOrRes() {
       if (skip !== false && skip(req, res)) {
         return;
       }
@@ -501,13 +501,13 @@ function morgan(format, opts) {
 
     if (immediate) {
       // immediate log
-      logRequest();
+      logReqOrRes();
     } else {
       // record response start
       onHeaders(res, recordStartTime);
 
       // log when response finished
-      onFinished(res, logRequest);
+      onFinished(res, logReqOrRes);
     }
 
     next();
@@ -873,7 +873,7 @@ function token(name, fn) {
 
 
 function getLineSeperator(opts){
-  if(opts.prettify===true || opts.logNewLine===true){
+  if (opts.includeNewLine === true){
     return '\n';
   } else {
     return '';
