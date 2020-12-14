@@ -23,6 +23,7 @@ declare module "morgan-body" {
     logResHeaderList?: boolean;
     logAllResHeader?: boolean;
     logIP?: boolean,
+    logNewLine?:boolean;
     skip?: FilterFunctionType | null;
     stream?: StreamLikeType | null;
     theme?: ThemeType;
