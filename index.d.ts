@@ -28,7 +28,7 @@ declare module "morgan-body" {
     stream?: StreamLikeType | null;
     theme?: ThemeType;
     filterParameters?: string[];
-    immediateReqLog: boolean;
+    immediateReqLog?: boolean;
   }
 
   export default function morganBody(app: express.Application, options?: IMorganBodyOptions): void;
