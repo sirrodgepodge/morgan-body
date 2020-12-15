@@ -250,7 +250,7 @@ module.exports = function morganBody(app, options) {
   var status200 = themeObj.status200;
   var status100 = themeObj.status100;
 
-  var lineSeparator = getLineSeperator(morganOptions.includeNewLine);
+  var lineSeparator = getLineSeperator(includeNewLine);
 
   // handling of native morgan options
   var morganOptions = {};
@@ -315,7 +315,7 @@ module.exports = function morganBody(app, options) {
     var fn = developmentFormatLine.func;
     if (!fn) {
       // compile and memoize
-      var formatString = lineSeparator + actionColor + optionalIdInclusionStr + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
+      var formatString = actionColor + optionalIdInclusionStr + 'Request: ' + methodColor + ':method ' + pathColor + ':url';
       if (logAllReqHeader) {
         formatString += ' headers[:request-headers]';
       } else {
@@ -492,6 +492,9 @@ function morgan(format, opts) {
     stream = createBufferStream(stream, interval);
   }
 
+  const isMorganBodyReq = format.includes("dev-req-");
+  const isMorganBodyRes = format.includes("dev-res-");
+
   return function logger(req, res, next) {
     // request data
     req._startAt = undefined;
@@ -518,7 +521,11 @@ function morgan(format, opts) {
         return;
       }
 
-      stream.write(line + lineSeparator);
+      if (isMorganBodyReq) {
+        return stream.write(lineSeparator + line + lineSeparator);
+      } else {
+        return stream.write(line + lineSeparator);
+      }
     }
 
     if (immediate) {

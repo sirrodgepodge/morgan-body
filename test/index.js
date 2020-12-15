@@ -6,11 +6,11 @@ var simulateRequestPromise = require('./util/simulateRequestPromise');
 var expect = require('chai').expect;
 
 function standardRequestLineCheck(line) {
-  expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`);
+  expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`);
 }
 
 function standardPostRequestLineCheck(line) {
-  expect(line).to.equal(`\u001b[96mRequest: \u001b[93mPOST \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`);
+  expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mPOST \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`);
 }
 
 function standardResponseLineCheck(line) {
@@ -68,7 +68,7 @@ describe('morganBody()', function () {
 `;
 
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`Request: POST / at Wed Dec 31 1969 19:00:00 GMT-0500, IP: ::ffff:127.0.0.1, User Agent: node-superagent/3.8.3\n`),
+      line => expect(line).to.equal(`\nRequest: POST / at Wed Dec 31 1969 19:00:00 GMT-0500, IP: ::ffff:127.0.0.1, User Agent: node-superagent/3.8.3\n`),
       line => expect(line).to.equal(`Request Body:\n` + sharedStr),
       line => expect(line).to.equal(`Response Body:\n` + sharedStr),
       line => expect(forceResponseTimeToZero(line)).to.equal(`Response: 200 0.000 ms \n`)
@@ -102,7 +102,7 @@ describe('morganBody()', function () {
 `;
 
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`Request: POST / at Wed Dec 31 1969 19:00:00 GMT-0500, IP: ::ffff:127.0.0.1, User Agent: node-superagent/3.8.3\n`),
+      line => expect(line).to.equal(`\nRequest: POST / at Wed Dec 31 1969 19:00:00 GMT-0500, IP: ::ffff:127.0.0.1, User Agent: node-superagent/3.8.3\n`),
       line => expect(line).to.equal(`Request Body:\n` + sharedStr),
       line => expect(line).to.equal(`Response Body:\n` + sharedStr),
       line => expect(forceResponseTimeToZero(line)).to.equal(`Response: 200 0.000 ms \n`)
@@ -134,7 +134,7 @@ describe('morganBody()', function () {
 
   it('should respect "logReqDateTime" property', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     );
 
     simulateRequestPromise({ logReqDateTime: false }, 'get');
@@ -144,7 +144,7 @@ describe('morganBody()', function () {
 
   it('should respect "logReqUserAgent" property', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500 \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500 \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m\n`)
     );
 
     simulateRequestPromise({ logReqUserAgent: false }, 'get');
@@ -176,7 +176,7 @@ describe('morganBody()', function () {
 
   it('should respect "logRequestId" property, example without req ID being given', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96m[-] Request: \u001b[93mPOST \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+      line => expect(line).to.equal(`\n\u001b[96m[-] Request: \u001b[93mPOST \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
       line => expect(line).to.equal(`\u001b[95m[-] Request Body:\u001b[0m\n\u001b[97m{\u001b[0m\n\u001b[97m\t"key": "reqVal"\u001b[0m\n\u001b[97m}\u001b[0m\n`),
       line => expect(line).to.equal(`\u001b[95m[-] Response Body:\u001b[0m\n\u001b[97m{\u001b[0m\n\u001b[97m\t"key": "resVal"\u001b[0m\n\u001b[97m}\u001b[0m\n`),
       line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[96m[-] Response: \u001b[32m200 \u001b[37m0.000 ms \n`),
@@ -190,7 +190,7 @@ describe('morganBody()', function () {
   it('should respect "logRequestId" property, example with req ID being given', function () {
     const reqId = 'exampleRequestId';
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96m[${reqId}] Request: \u001b[93mPOST \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+      line => expect(line).to.equal(`\n\u001b[96m[${reqId}] Request: \u001b[93mPOST \u001b[97m/ \u001b[90mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
       line => expect(line).to.equal(`\u001b[95m[${reqId}] Request Body:\u001b[0m\n\u001b[97m{\u001b[0m\n\u001b[97m\t"key": "reqVal"\u001b[0m\n\u001b[97m}\u001b[0m\n`),
       line => expect(line).to.equal(`\u001b[95m[${reqId}] Response Body:\u001b[0m\n\u001b[97m{\u001b[0m\n\u001b[97m\t"key": "resVal"\u001b[0m\n\u001b[97m}\u001b[0m\n`),
       line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[96m[${reqId}] Response: \u001b[32m200 \u001b[37m0.000 ms \n`),
@@ -203,7 +203,7 @@ describe('morganBody()', function () {
 
   it('should handle "dateTimeFormat" of "iso"', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m1969-12-31T19:00:00.000-05:00, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m1969-12-31T19:00:00.000-05:00, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     );
 
     simulateRequestPromise({ dateTimeFormat: "iso" }, 'get');
@@ -213,7 +213,7 @@ describe('morganBody()', function () {
 
   it('should handle "dateTimeFormat" of "clf"', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m31/Dec/1969:19:00:00 -0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m31/Dec/1969:19:00:00 -0500, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     );
 
     simulateRequestPromise({ dateTimeFormat: "clf" }, 'get');
@@ -223,7 +223,7 @@ describe('morganBody()', function () {
 
   it('should handle "dateTimeFormat" of "utc"', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mThu, 01 Jan 1970 00:00:00 GMT, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mThu, 01 Jan 1970 00:00:00 GMT, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     );
 
     simulateRequestPromise({ dateTimeFormat: "utc" }, 'get');
@@ -243,7 +243,7 @@ describe('morganBody()', function () {
 
   it('"timezone" property should update GMT adjustment val for default "dateTimeFormat"', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mThu Jan 01 1970 02:00:00 GMT+0200, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37mThu Jan 01 1970 02:00:00 GMT+0200, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     );
 
     simulateRequestPromise({ timezone: "Africa/Blantyre" }, 'get');
@@ -253,7 +253,7 @@ describe('morganBody()', function () {
 
   it('"timezone" property should update GMT adjustment val for "iso" "dateTimeFormat"', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m1970-01-01T02:00:00.000+02:00, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m1970-01-01T02:00:00.000+02:00, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     );
 
     simulateRequestPromise({ dateTimeFormat: 'iso', timezone: "Africa/Blantyre" }, 'get');
@@ -263,7 +263,7 @@ describe('morganBody()', function () {
 
   it('"timezone" property should update GMT adjustment val for "clf" "dateTimeFormat"', function () {
     const consoleTestPromise = consoleTest(
-      line => expect(line).to.equal(`\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m01/Jan/1970:02:00:00 +0200, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
+      line => expect(line).to.equal(`\n\u001b[96mRequest: \u001b[93mGET \u001b[97m/ \u001b[90mat \u001b[37m01/Jan/1970:02:00:00 +0200, \u001b[90mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`)
     )
 
     simulateRequestPromise({ dateTimeFormat: 'clf', timezone: "Africa/Blantyre" }, 'get');
@@ -336,7 +336,7 @@ describe('morganBody()', function () {
       const bodyStr = getBodyStr(90);
 
       const consoleTestPromise = consoleTest(
-        line => expect(line).to.equal(`\u001b[91mRequest: \u001b[94mPOST \u001b[90m/ \u001b[97mat \u001b[30mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[97mIP: \u001b[30m::ffff:127.0.0.1\u001b[0m, \u001b[97mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+        line => expect(line).to.equal(`\n\u001b[91mRequest: \u001b[94mPOST \u001b[90m/ \u001b[97mat \u001b[30mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[97mIP: \u001b[30m::ffff:127.0.0.1\u001b[0m, \u001b[97mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
         line => expect(line).to.equal(`\u001b[92mRequest Body:\u001b[0m\n` + bodyStr),
         line => expect(line).to.equal(`\u001b[92mResponse Body:\u001b[0m\n` + bodyStr),
         line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[91mResponse: \u001b[35m200 \u001b[30m0.000 ms \n`)
@@ -351,7 +351,7 @@ describe('morganBody()', function () {
       const bodyStr = getBodyStr(37);
 
       const consoleTestPromise = consoleTest(
-        line => expect(line).to.equal(`\u001b[36mRequest: \u001b[33mPOST \u001b[37m/ \u001b[30mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[30mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[30mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+        line => expect(line).to.equal(`\n\u001b[36mRequest: \u001b[33mPOST \u001b[37m/ \u001b[30mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[30mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[30mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
         line => expect(line).to.equal(`\u001b[35mRequest Body:\u001b[0m\n` + bodyStr),
         line => expect(line).to.equal(`\u001b[35mResponse Body:\u001b[0m\n` + bodyStr),
         line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[36mResponse: \u001b[32m200 \u001b[37m0.000 ms \n`)
@@ -366,7 +366,7 @@ describe('morganBody()', function () {
       const bodyStr = getBodyStr(96);
 
       const consoleTestPromise = consoleTest(
-        line => expect(line).to.equal(`\u001b[95mRequest: \u001b[92mPOST \u001b[96m/ \u001b[90mat \u001b[36mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[36m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+        line => expect(line).to.equal(`\n\u001b[95mRequest: \u001b[92mPOST \u001b[96m/ \u001b[90mat \u001b[36mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[36m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
         line => expect(line).to.equal(`\u001b[94mRequest Body:\u001b[0m\n` + bodyStr),
         line => expect(line).to.equal(`\u001b[94mResponse Body:\u001b[0m\n` + bodyStr),
         line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[95mResponse: \u001b[31m200 \u001b[36m0.000 ms \n`)
@@ -381,7 +381,7 @@ describe('morganBody()', function () {
       const bodyStr = getBodyStr(97);
 
       const consoleTestPromise = consoleTest(
-        line => expect(line).to.equal(`\u001b[97mRequest: \u001b[94mPOST \u001b[97m/ \u001b[91mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[91mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[91mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+        line => expect(line).to.equal(`\n\u001b[97mRequest: \u001b[94mPOST \u001b[97m/ \u001b[91mat \u001b[37mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[91mIP: \u001b[37m::ffff:127.0.0.1\u001b[0m, \u001b[91mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
         line => expect(line).to.equal(`\u001b[96mRequest Body:\u001b[0m\n` + bodyStr),
         line => expect(line).to.equal(`\u001b[96mResponse Body:\u001b[0m\n` + bodyStr),
         line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[97mResponse: \u001b[33m200 \u001b[37m0.000 ms \n`)
@@ -396,7 +396,7 @@ describe('morganBody()', function () {
       const bodyStr = getBodyStr(97);
 
       const consoleTestPromise = consoleTest(
-        line => expect(line).to.equal(`\u001b[97mRequest: \u001b[31mPOST \u001b[97m/ \u001b[90mat \u001b[97mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[97m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+        line => expect(line).to.equal(`\n\u001b[97mRequest: \u001b[31mPOST \u001b[97m/ \u001b[90mat \u001b[97mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[90mIP: \u001b[97m::ffff:127.0.0.1\u001b[0m, \u001b[90mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
         line => expect(line).to.equal(`\u001b[97mRequest Body:\u001b[0m\n` + bodyStr),
         line => expect(line).to.equal(`\u001b[97mResponse Body:\u001b[0m\n` + bodyStr),
         line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[97mResponse: \u001b[31m200 \u001b[97m0.000 ms \n`)
@@ -411,7 +411,7 @@ describe('morganBody()', function () {
       const bodyStr = getBodyStr(97);
 
       const consoleTestPromise = consoleTest(
-        line => expect(line).to.equal(`\u001b[31mRequest: \u001b[94mPOST \u001b[97m/ \u001b[31mat \u001b[97mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[31mIP: \u001b[97m::ffff:127.0.0.1\u001b[0m, \u001b[31mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
+        line => expect(line).to.equal(`\n\u001b[31mRequest: \u001b[94mPOST \u001b[97m/ \u001b[31mat \u001b[97mWed Dec 31 1969 19:00:00 GMT-0500, \u001b[31mIP: \u001b[97m::ffff:127.0.0.1\u001b[0m, \u001b[31mUser Agent: node-superagent/3.8.3\u001b[0m\n`),
         line => expect(line).to.equal(`\u001b[94mRequest Body:\u001b[0m\n` + bodyStr),
         line => expect(line).to.equal(`\u001b[94mResponse Body:\u001b[0m\n` + bodyStr),
         line => expect(forceResponseTimeToZero(line)).to.equal(`\u001b[31mResponse: \u001b[31m200 \u001b[97m0.000 ms \n`)
