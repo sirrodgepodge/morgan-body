@@ -339,6 +339,7 @@ module.exports = function morganBody(app, options) {
   });
 
   var reqMorganOptions = shallowClone(morganOptions);
+  reqMorganOptions.skip = null // res.statusCode defaults to 200 here. So things like { skip: (req, res) => res.statusCode < 400 } will filter all morganReqFormatName.
   reqMorganOptions.immediate = immediateReqLog; // log request when it comes in (instead of waiting until response goes out)
   app.use(morgan(morganReqFormatName, reqMorganOptions));
 
