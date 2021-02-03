@@ -1,6 +1,6 @@
 {
   "name": "morgan-body",
-  "version": "2.6.4",
+  "version": "2.6.5",
   "author": "Roger Beaman <rwcbeaman@gmail.com> (https://github.com/sirrodgepodge)",
   "description": "morgan logging req, res, and body",
   "main": "index.js",

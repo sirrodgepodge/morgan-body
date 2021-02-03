@@ -217,7 +217,7 @@ module.exports = function morganBody(app, options) {
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var includeNewLine = options.hasOwnProperty('includeNewLine') ? options.includeNewLine : prettify;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
-  var immediateReqLog = options.hasOwnProperty('immediateReqLog') ? options.immediateReqLog : true;
+  var immediateReqLog = options.hasOwnProperty('immediateReqLog') ? options.immediateReqLog : false;
 
 
   var theme;
