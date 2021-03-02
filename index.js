@@ -188,7 +188,7 @@ function bodyToString(
     }, jsonSeparator);
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + separatorStr + '...';
 
-    var lineSeparator = prettify === true ? separatorStr : '';
+    var lineSeparator = prettify === true ? separatorStr : ' ';
     const splitOnNewLine = stringifiedObj.split(separatorStr);
     const splitOnNewLineLength = splitOnNewLine.length;
     for (let i = 0; i < splitOnNewLineLength; i++) {
@@ -905,6 +905,6 @@ function getLineSeperator(includeNewLine){
   if (includeNewLine){
     return '\n';
   } else {
-    return '';
+    return ' ';
   }
 }
