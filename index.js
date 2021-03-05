@@ -216,6 +216,7 @@ module.exports = function morganBody(app, options) {
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var includeNewLine = options.hasOwnProperty('includeNewLine') ? options.includeNewLine : prettify;
+  var includeFinalNewLine = options.hasOwnProperty('includeFinalNewLine') ? options.includeFinalNewLine : prettify;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
   var immediateReqLog = options.hasOwnProperty('immediateReqLog') ? options.immediateReqLog : false;
 
@@ -509,7 +510,8 @@ function morgan(format, opts) {
     recordStartTime.call(req);
 
     var lineSeparator = getLineSeperator(opts.includeNewLine);
-  
+    var finalLineSeparator = getFinalLineSeparator(opts.includeFinalNewLine);
+
     function logReqOrRes() {
       if (skip !== false && skip(req, res)) {
         return;
@@ -522,9 +524,9 @@ function morgan(format, opts) {
       }
 
       if (isMorganBodyReq) {
-        return stream.write(lineSeparator + line + lineSeparator);
+        return stream.write(lineSeparator + line + lineSeparator + finalLineSeparator);
       } else {
-        return stream.write(line + lineSeparator);
+        return stream.write(line + lineSeparator + finalLineSeparator);
       }
     }
 
@@ -905,6 +907,14 @@ function getLineSeperator(includeNewLine){
   if (includeNewLine){
     return '\n';
   } else {
+    return '';
+  }
+}
+
+function getFinalLineSeparator(includeFinalNewLine){
+  if(includeFinalNewLine){
+    return '\n';
+  }else{
     return '';
   }
 }
