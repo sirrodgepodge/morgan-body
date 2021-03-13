@@ -1,5 +1,7 @@
 require('./util/forceDateToZero'); // need to normalize dates for standardizing logs, overwrites Date, forcing all date times to zero
 
+process.env.TZ = "EST";
+
 var assert = require('assert');
 var consoleTest = require('universal-stream-test');
 var simulateRequestPromise = require('./util/simulateRequestPromise');
