@@ -96,6 +96,21 @@ describe('morganBody()', function () {
     return consoleTestPromise;
   });
 
+  it('should include final new line if set', function() {
+    var sharedStr = `{"key":"value","key2":"value2"}`;
+
+    const consoleTestPromise = consoleTest(
+        line => expect(line).to.equal(`Request: POST / at Wed Dec 31 1969 19:00:00 GMT-0500, IP: ::ffff:127.0.0.1, User Agent: node-superagent/3.8.3`),
+        line => expect(line).to.equal(`Request Body:` + sharedStr),
+        line => expect(line).to.equal(`Response Body:` + sharedStr),
+        line => expect(forceResponseTimeToZero(line)).to.equal(`Response: 200 0.000 ms \n`)
+    );
+
+    simulateRequestPromise({ noColors: true, prettify: false, includeNewLine: false, includeFinalNewLine: true}, 'post', { key: 'value', key2: 'value2' }, { key: 'value', key2: 'value2' });
+
+    return consoleTestPromise;
+  });
+
   it('should prettify json object when "prettify" property is true', function() {
     var sharedStr = `{
 \t"key": "value",
