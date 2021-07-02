@@ -188,7 +188,7 @@ function bodyToString(
     }, jsonSeparator);
     if (stringifiedObj.length > maxBodyLength) stringifiedObj = stringifiedObj.slice(0, maxBodyLength) + separatorStr + '...';
 
-    var lineSeparator = prettify === true ? separatorStr : '';
+    var lineSeparator = prettify === true ? separatorStr : ' ';
     const splitOnNewLine = stringifiedObj.split(separatorStr);
     const splitOnNewLineLength = splitOnNewLine.length;
     for (let i = 0; i < splitOnNewLineLength; i++) {
@@ -216,6 +216,7 @@ module.exports = function morganBody(app, options) {
   var noColors = options.hasOwnProperty('noColors') ? options.noColors : false;
   var prettify = options.hasOwnProperty('prettify') ? options.prettify : true;
   var includeNewLine = options.hasOwnProperty('includeNewLine') ? options.includeNewLine : prettify;
+  var includeFinalNewLine = options.hasOwnProperty('includeFinalNewLine') ? options.includeFinalNewLine : false;
   var filterParameters = options.hasOwnProperty('filterParameters') ? options.filterParameters : [];
   var immediateReqLog = options.hasOwnProperty('immediateReqLog') ? options.immediateReqLog : false;
 
@@ -418,6 +419,10 @@ module.exports = function morganBody(app, options) {
         }
       }
 
+      if(includeFinalNewLine){
+        formatString += '\\n'
+      }
+
       fn = developmentFormatLine[statusColor] = compile(formatString);
     }
 
@@ -509,7 +514,7 @@ function morgan(format, opts) {
     recordStartTime.call(req);
 
     var lineSeparator = getLineSeperator(opts.includeNewLine);
-  
+
     function logReqOrRes() {
       if (skip !== false && skip(req, res)) {
         return;
@@ -905,6 +910,6 @@ function getLineSeperator(includeNewLine){
   if (includeNewLine){
     return '\n';
   } else {
-    return '';
+    return ' ';
   }
 }
