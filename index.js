@@ -373,8 +373,9 @@ module.exports = function morganBody(app, options) {
 
     if (logResponseBody) {
       // need to catch setting of response body
-      var originalSend = app.response.send;
-      app.response.send = function sendOverWrite(body) {
+      const appResponsePrototype = Object.getPrototypeOf(app.response);
+      var originalSend = appResponsePrototype.send;
+      appResponsePrototype.send = function sendOverWrite(body) {
         originalSend.call(this, body);
         this.__morgan_body_response = body;
       };

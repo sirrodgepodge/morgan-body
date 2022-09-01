@@ -19,14 +19,18 @@ module.exports = function simulateRequestPromise(opts, method = 'get', reqBody, 
 
 function createServer(opts, responseObj, addToRequestObj) {
   var funcPipeline = [];
-  var fakeApp = {
+
+  class FakeAppResponse {
+    send() {}
+  }
+  class FakeApp {
     use(func) {
       funcPipeline.push(func);
-    },
-    response: {
-      send() {}
     }
-  };
+    response = new FakeAppResponse()
+  }
+
+  var fakeApp = new FakeApp();
 
   return http.createServer(function onRequest (req, res) {
     // add properties to request object
@@ -35,7 +39,6 @@ function createServer(opts, responseObj, addToRequestObj) {
     });
 
     morganBody(fakeApp, opts || {});
-
     res.send = fakeApp.response.send.bind(res);
 
     // run middleware consecutively with req and res, some mini-express action here
