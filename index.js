@@ -2,6 +2,7 @@
 
 // For formatting date in appropriate timezone;
 const moment = require('moment-timezone');
+const Symbol = require("es6-symbol");
 
 morgan.format = format;
 morgan.token = token;
@@ -375,12 +376,13 @@ module.exports = function morganBody(app, options) {
       // need to catch setting of response body
       const appResponsePrototype = Object.getPrototypeOf(app.response);
       var originalSend = appResponsePrototype.send;
+      const morganBodyResponseSymbol = Symbol();
       appResponsePrototype.send = function sendOverWrite(body) {
         originalSend.call(this, body);
-        this.__morgan_body_response = body;
+        this[morganBodyResponseSymbol] = body;
       };
 
-      app.use(morgan(logBodyGen('Response', (req, res) => res.__morgan_body_response), morganOptions));
+      app.use(morgan(logBodyGen('Response', (req, res) => res[morganBodyResponseSymbol]), morganOptions));
     }
   }
 
