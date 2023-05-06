@@ -563,8 +563,13 @@ morgan.token('url', function getUrlToken(req) {
  * request method
  */
 
+var reqIdSymbol = Symbol();
 function getIDToken(req) {
-  return req.id;
+  if (!req.id && !req[reqIdSymbol]) {
+    req[reqIdSymbol] = require("crypto").randomUUID();
+  }
+
+  return req.id || req[reqIdSymbol];
 };
 
 morgan.token('id', function getToken(req) {
